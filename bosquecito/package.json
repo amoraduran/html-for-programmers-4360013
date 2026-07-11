@@ -1,0 +1,13 @@
+{
+  "name": "bosquecito",
+  "version": "1.0.0",
+  "description": "Bosquecito — virtual pet game (familia del bosque)",
+  "private": true,
+  "scripts": {
+    "test": "node tests/suite.js"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}
