@@ -233,6 +233,19 @@ step("hud urgent pulse", ()=> {
   w.endGame(true);
 });
 
+step("fruit button fallback", ()=> {
+  w.endGame(true); D().P.ene = 90; D().P.sick = false;
+  w.startFruit();
+  D().fruit.tx = 100; D().fruit.px = 100;
+  w.fruitHold(1);
+  for(let i=0;i<10;i++) w.draw();
+  if(D().fruit.tx <= 100) throw new Error('did not move right '+D().fruit.tx);
+  w.fruitHold(0);
+  const tx = D().fruit.tx;
+  for(let i=0;i<5;i++) w.draw();
+  if(D().fruit.tx !== tx) throw new Error('kept moving after release');
+  w.endGame(true);
+});
 step("memo play + wrong ends", ()=> {
   w.endGame(true); D().P.ene = 90; D().P.sick = false;
   w.startMemo();
@@ -303,6 +316,6 @@ step("fish finish", ()=> {
 });
 
 setTimeout(()=>{
-  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 46 TESTS PASSED");
+  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 47 TESTS PASSED");
   process.exit(errors.length?1:0);
 }, 700);

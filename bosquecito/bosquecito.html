@@ -42,7 +42,7 @@
     align-items:center;justify-content:center;text-align:center;
     padding:18px 14px;gap:14px;
   }
-  .screen.active{display:flex}
+  .screen.active{display:flex;animation:fadeScreen .3s ease}
   h1{font-size:15px;color:var(--gold);text-shadow:2px 2px 0 var(--plum);line-height:1.6}
   h2{font-size:9px;color:var(--gold);text-shadow:1px 1px 0 var(--plum)}
   p{font-size:6px;line-height:1.9}
@@ -202,9 +202,9 @@
     position:absolute;inset:0;background:rgba(22,38,29,.86);display:none;
     align-items:flex-end;justify-content:center;z-index:10;
   }
-  .sheet.open{display:flex}
+  .sheet.open{display:flex;animation:fadeScreen .2s ease}
   .sheetCard{
-    width:100%;max-width:420px;max-height:82%;overflow-y:auto;
+    width:100%;max-width:420px;max-height:82%;overflow-y:auto;overscroll-behavior:contain;
     background:var(--moss);border:4px solid var(--plum);border-radius:18px 18px 0 0;
     padding:8px 12px calc(16px + env(safe-area-inset-bottom));
     display:flex;flex-direction:column;gap:10px;align-items:center;
@@ -245,6 +245,8 @@
   #gameHud.urgent{animation:critPulse .5s ease-in-out infinite;border-color:#e2607a}
   #guessBtns{display:none;gap:14px;pointer-events:auto}
   #guessBtns .pxbtn{font-size:9px;padding:12px 18px}
+  #moveBtns{display:none;width:100%;justify-content:space-between;pointer-events:none}
+  #moveBtns .pxbtn{font-size:15px;padding:14px 20px;pointer-events:auto;opacity:.92;touch-action:none;user-select:none}
   #gameExit{pointer-events:auto;display:none;position:absolute;top:8px;left:8px;font-size:6px;padding:8px 9px}
 
   #toast{
@@ -265,6 +267,12 @@
   #tbCoins.pop{display:inline-block;animation:coinPop .32s}
   @keyframes shakeFx{0%,100%{transform:none}25%{transform:translate(3px,-2px)}50%{transform:translate(-3px,2px)}75%{transform:translate(2px,1px)}}
   #cvWrap.shake{animation:shakeFx .3s}
+  @keyframes fadeScreen{from{opacity:0}to{opacity:1}}
+  /* respeto por quien prefiere menos movimiento */
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
+    #cvWrap.shake{animation:none}
+  }
 </style>
 </head>
 <body>
@@ -310,6 +318,10 @@
           <div id="guessBtns">
             <button class="pxbtn" onclick="guessPick(-1)">⬅️ Izq</button>
             <button class="pxbtn" onclick="guessPick(1)">Der ➡️</button>
+          </div>
+          <div id="moveBtns">
+            <button class="pxbtn" aria-label="Mover a la izquierda" onpointerdown="fruitHold(-1)" onpointerup="fruitHold(0)" onpointerleave="fruitHold(0)" onpointercancel="fruitHold(0)">⬅️</button>
+            <button class="pxbtn" aria-label="Mover a la derecha" onpointerdown="fruitHold(1)" onpointerup="fruitHold(0)" onpointerleave="fruitHold(0)" onpointercancel="fruitHold(0)">➡️</button>
           </div>
           <button class="pxbtn ghost" id="gameExit" onclick="endGame(true)">✖ Salir</button>
         </div>
@@ -583,7 +595,8 @@ function tone(f,d,type,vol,delay){
     const a=ac(), o=a.createOscillator(), g=a.createGain();
     o.type=type||'square'; o.frequency.value=f;
     const t0=a.currentTime+(delay||0);
-    g.gain.setValueAtTime(vol||.1, t0);
+    g.gain.setValueAtTime(.0001, t0);
+    g.gain.linearRampToValueAtTime(vol||.1, t0+.008);   /* ataque suave: sin clic */
     g.gain.exponentialRampToValueAtTime(.001, t0+d);
     o.connect(g); g.connect(a.destination);
     o.start(t0); o.stop(t0+d+.02);
@@ -1383,8 +1396,10 @@ setInterval(()=>{
 setInterval(saveAll, 5000);
 
 /* ============ JUGO (game feel) ============ */
-function vib(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
-function shake(){ const w=$('cvWrap'); w.classList.remove('shake'); void w.offsetWidth; w.classList.add('shake'); }
+let reduceMotion = false;
+try{ reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
+function vib(p){ if(reduceMotion) return; try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+function shake(){ if(reduceMotion) return; const w=$('cvWrap'); w.classList.remove('shake'); void w.offsetWidth; w.classList.add('shake'); }
 function floatText(x, y, txt, col){
   particles.push({x, y, vx:0, vy:-0.8, t:0, life:55, txt, col: col||'#ffdf8e'});
 }
@@ -1514,12 +1529,12 @@ function draw(){
     ctx.beginPath(); ctx.moveTo(gx, gy); ctx.lineTo(gx+sway, gy-7); ctx.stroke();
   }
 
-  if(gameMode==='fruit'){ drawFruit(); requestAnimationFrame(draw); return; }
-  if(gameMode==='run'){ drawRun(); requestAnimationFrame(draw); return; }
-  if(gameMode==='memo'){ drawMemo(); requestAnimationFrame(draw); return; }
-  if(gameMode==='bugs'){ drawBugs(); requestAnimationFrame(draw); return; }
-  if(gameMode==='beat'){ drawBeat(); requestAnimationFrame(draw); return; }
-  if(gameMode==='fish'){ drawFish(); requestAnimationFrame(draw); return; }
+  if(gameMode==='fruit'){ drawFruit(); stepParticles(); return; }
+  if(gameMode==='run'){ drawRun(); stepParticles(); return; }
+  if(gameMode==='memo'){ drawMemo(); stepParticles(); return; }
+  if(gameMode==='bugs'){ drawBugs(); stepParticles(); return; }
+  if(gameMode==='beat'){ drawBeat(); stepParticles(); return; }
+  if(gameMode==='fish'){ drawFish(); stepParticles(); return; }
 
   /* popós (con mosquitas si ya llevan rato) */
   P && P.poops.forEach(pp=>{
@@ -1723,7 +1738,13 @@ function draw(){
     ctx.fillStyle = 'rgba(255,246,236,.25)';
     ctx.fill();
   });
-  /* partículas */
+  stepParticles();
+}
+/* Actualiza y dibuja las partículas. Lo usan la escena y los minijuegos, así
+   la chispa se ve igual en todos lados y el arreglo nunca crece sin control. */
+const PARTICLE_MAX = 90;
+function stepParticles(){
+  if(particles.length > PARTICLE_MAX) particles.splice(0, particles.length - PARTICLE_MAX);
   particles = particles.filter(pt=>pt.t<pt.life);
   particles.forEach(pt=>{
     pt.t++;
@@ -1742,7 +1763,6 @@ function draw(){
     }
     ctx.globalAlpha = 1;
   });
-  requestAnimationFrame(draw);
 }
 function drawAcc(px, py, size, sprW, sprH){
   if(!P.acc) return;
@@ -2056,10 +2076,13 @@ function startFruit(){
   fruitDir = 0;
   $('gameUI').classList.add('open');
   $('guessBtns').style.display = 'none';
+  $('moveBtns').style.display = 'flex';
   $('gameExit').style.display = 'block';
   $('gameHud').innerHTML = '🍎 0 · ⏱️ 30';
-  toast('Arrastrá el dedo para moverte 🏃 · esquivá las piñas 🍍');
+  toast('Arrastrá el dedo o usá ⬅️➡️ · esquivá las piñas 🍍');
 }
+/* sostener un botón mueve al personaje (alternativa al arrastre) */
+function fruitHold(d){ if(gameMode==='fruit') fruitDir = d; }
 function fruitTick(dt){
   fruit.t -= dt;
   $('gameHud').classList.toggle('urgent', fruit.t <= 5 && fruit.t > 0);
@@ -2067,7 +2090,8 @@ function fruitTick(dt){
 }
 function fruitMult(){ return fruit.combo>=6 ? 3 : fruit.combo>=3 ? 2 : 1; }
 function drawFruit(){
-  /* control directo: el personaje sigue tu dedo */
+  /* control directo: el personaje sigue tu dedo · o los botones ⬅️➡️ */
+  if(fruitDir) fruit.tx = Math.max(30, Math.min(W-30, fruit.tx + fruitDir*7));
   if(fruit.stun > 0){ fruit.stun--; }
   else { fruit.px += (fruit.tx - fruit.px) * 0.28; }
   fruit.px = Math.max(30, Math.min(W-30, fruit.px));
@@ -2631,6 +2655,7 @@ function endGame(quiet){
   $('s-play').classList.remove('ingame');
   $('gameHud').classList.remove('urgent');
   fruitDir = 0;
+  $('moveBtns').style.display = 'none';
   heldChar = false; petting = false; charOX = 0; charOY = 0; charVX = 0; charVY = 0; airborne = false;
   $('gameUI').classList.remove('open');
   hideBubble();
@@ -2664,13 +2689,35 @@ document.addEventListener('visibilitychange', ()=>{
 });
 window.addEventListener('beforeunload', saveAll);
 
+/* ============ BUCLE (paso fijo, independiente de los Hz de la pantalla) ============ */
+/* draw() avanza un paso de simulación. El bucle real acumula el tiempo verdadero
+   y corre pasos de 1/60s, así el juego va a la misma velocidad en pantallas de
+   60, 90, 120 o 144 Hz (antes iba al doble en teléfonos de 120 Hz). */
+const FRAME_MS = 1000/60;
+let _lastTs = 0, _frameAcc = 0, _loopOn = true;
+function frameLoop(ts){
+  if(!_loopOn) return;
+  requestAnimationFrame(frameLoop);
+  if(!_lastTs){ _lastTs = ts; draw(); return; }
+  let delta = ts - _lastTs;
+  _lastTs = ts;
+  if(delta > 250) delta = 250;            /* volviendo de segundo plano: no acelerar */
+  _frameAcc += delta;
+  let steps = 0;
+  while(_frameAcc >= FRAME_MS && steps < 5){ draw(); _frameAcc -= FRAME_MS; steps++; }
+}
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){ _loopOn = false; }
+  else if(!_loopOn){ _loopOn = true; _lastTs = 0; _frameAcc = 0; requestAnimationFrame(frameLoop); }
+});
+
 /* ============ INICIO ============ */
 document.querySelectorAll('.sheet').forEach(sh=>{
   sh.addEventListener('pointerdown', ev=>{ if(ev.target === sh){ closePanels(); sfx('back'); } });
 });
 loadGlobal();
 muted = !!G.muted;
-requestAnimationFrame(draw);
+requestAnimationFrame(frameLoop);
 const _tm = toggleMute;
 toggleMute = function(){ _tm(); G.muted = muted; saveAll(); };
 </script>
