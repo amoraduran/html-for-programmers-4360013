@@ -617,18 +617,28 @@ function bgKey(){
   return j[Math.min(idx, j.length-1)];
 }
 function curBiome(){ const k = bgKey(); return k ? BIOME[k] : null; }
+/* Color del bioma de un personaje según su nivel (para teñir su tarjeta en el
+   select · así el mundo de cada quien se ve desde antes de entrar). */
+function biomeColorFor(k, lv){
+  const j = BG_JOURNEY[k];
+  if(!j) return '#c9a7d0';   /* Leila: interior lila */
+  const idx = lv<=3 ? 0 : lv<=6 ? 1 : 2;
+  const b = BIOME[j[Math.min(idx, j.length-1)]];
+  return b ? b.fg1 : '#4e7a4a';
+}
 /* Cielo nocturno animado: máscara oscura + estrellas + auroras que se mueven.
    Va SÓLO sobre el cielo (arriba de la línea de suelo), sobre cualquier bioma:
    así la noche es "una capa que se agrega", como pediste. */
 function drawNightSky(){
+  const t = reduceMotion ? 0 : frame;   /* congelado si el usuario pide menos movimiento */
   ctx.fillStyle = 'rgba(10,14,34,.58)'; ctx.fillRect(0, 0, W, FG_TOP+10);   /* máscara del cielo */
   ctx.fillStyle = '#fff2c8';                                                /* estrellas titilando */
-  for(let i=0;i<22;i++){ const sx=(i*53)%W, sy=(i*29)%(FG_TOP-24); if((frame+i*11)%150<104) ctx.fillRect(sx, sy, 2, 2); }
+  for(let i=0;i<22;i++){ const sx=(i*53)%W, sy=(i*29)%(FG_TOP-24); if((t+i*11)%150<104) ctx.fillRect(sx, sy, 2, 2); }
   ctx.beginPath(); ctx.arc(W-44, 32, 12, 0, 7); ctx.fillStyle='#fff6ec'; ctx.fill();   /* luna */
   /* cortinas de aurora que ondean (dos pasadas: halo ancho + veta brillante) */
   const cols = ['#7dffcf', '#8ad6ff', '#c6a0ff', '#9fffe0'];
   for(let r=0;r<4;r++){
-    const base = 22 + r*22, pulse = 0.5 + 0.5*Math.sin(frame/50 + r*1.3);
+    const base = 22 + r*22, pulse = 0.5 + 0.5*Math.sin(t/50 + r*1.3);
     ctx.strokeStyle = cols[r];
     ctx.lineCap = 'round';
     /* halo ancho y tenue */
@@ -636,7 +646,7 @@ function drawNightSky(){
     ctx.lineWidth = 22 - r*3;
     ctx.beginPath();
     for(let x=-8;x<=W+8;x+=8){
-      const y = base + Math.sin(x/54 + frame/58 + r)*13 + Math.sin(x/19 - frame/84)*5;
+      const y = base + Math.sin(x/54 + t/58 + r)*13 + Math.sin(x/19 - t/84)*5;
       ctx.lineTo(x, y);
     }
     ctx.stroke();
@@ -645,12 +655,21 @@ function drawNightSky(){
     ctx.lineWidth = 3;
     ctx.beginPath();
     for(let x=-8;x<=W+8;x+=8){
-      const y = base + Math.sin(x/54 + frame/58 + r)*13 + Math.sin(x/19 - frame/84)*5;
+      const y = base + Math.sin(x/54 + t/58 + r)*13 + Math.sin(x/19 - t/84)*5;
       ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
   ctx.globalAlpha = 1; ctx.lineCap = 'butt';
+}
+/* Atardecer: baño cálido del cielo + sol bajo con resplandor (hora dorada). */
+function drawDuskSky(){
+  ctx.fillStyle = 'rgba(245,150,70,.16)'; ctx.fillRect(0, 0, W, FG_TOP+8);
+  const sx = W-72, sy = FG_TOP-40;
+  for(let r=28;r>0;r-=5){ ctx.globalAlpha = 0.06; ctx.fillStyle = '#ffd08a';
+    ctx.beginPath(); ctx.arc(sx, sy, r, 0, 7); ctx.fill(); }
+  ctx.globalAlpha = 1;
+  ctx.beginPath(); ctx.arc(sx, sy, 12, 0, 7); ctx.fillStyle = '#ffe0a0'; ctx.fill();
 }
 /* Franja de primer plano (nuestro pasto, ENFRENTE del cuadro) con borde de
    pasto, sombra de contacto y matas — lo que ya nos gustaba, ahora integrado. */
@@ -672,7 +691,7 @@ function drawFgBand(b, sky){
   const tufts = [[40,H-14,1.3],[74,H-11,1.5],[300,H-16,1.1],[326,H-10,1.5]];
   ctx.strokeStyle = sky.night ? '#2e5238' : b.fg1; ctx.lineWidth = 2;
   tufts.forEach((t,i)=>{ const [tx,ty,sc]=t;
-    for(let bl=-2;bl<=2;bl++){ const sway=Math.sin(frame/40+i+bl)*2*sc;
+    for(let bl=-2;bl<=2;bl++){ const sway=reduceMotion ? 0 : Math.sin(frame/40+i+bl)*2*sc;
       ctx.beginPath(); ctx.moveTo(tx+bl*3, ty); ctx.lineTo(tx+bl*3+sway, ty-(7+(bl===0?4:0))*sc); ctx.stroke(); }
   });
   if(!sky.night){
@@ -715,7 +734,7 @@ function drawFraming(b, sky){
   ctx.strokeStyle = gd; ctx.lineWidth = 3; ctx.lineCap = 'round';
   [8,20,W-20,W-8].forEach((bx,i)=>{
     for(let bl=0;bl<4;bl++){
-      const x = bx+bl*2-3, hgt = 24+((i+bl)%3)*9, sway = Math.sin(frame/38+i+bl)*3;
+      const x = bx+bl*2-3, hgt = 24+((i+bl)%3)*9, sway = reduceMotion ? 0 : Math.sin(frame/38+i+bl)*3;
       ctx.beginPath(); ctx.moveTo(x, H); ctx.lineTo(x+sway, H-hgt); ctx.stroke();
     }
   });
@@ -732,7 +751,7 @@ function drawSceneBG(sky){
   if(!im || !im.complete || !im.naturalWidth) return false;
   try{ ctx.drawImage(im, 0, -b.lift, W, H); }catch(e){ return false; }   /* subido = más profundidad */
   if(sky.night) drawNightSky();
-  else if(sky.dusk){ ctx.fillStyle='rgba(240,150,90,.10)'; ctx.fillRect(0,0,W,FG_TOP); }
+  else if(sky.dusk) drawDuskSky();
   drawFgBand(b, sky);
   _grade = sky.night ? 'rgba(16,22,52,.32)' : sky.dusk ? 'rgba(240,155,95,.12)' : (b.amb || null);
   return true;
@@ -1204,6 +1223,7 @@ function buildSelect(){
     const st = peekStatus(k, saved);
     const card = document.createElement('div');
     card.className = 'charCard' + (st.urgent ? ' urge' : '');
+    card.style.background = 'linear-gradient(160deg, '+biomeColorFor(k, lv)+'40, var(--moss) 68%)';
     card.innerHTML = '<canvas width="34" height="34"></canvas>'+
       '<span class="cname">'+SPRITES[k].name+'</span>'+
       '<span class="ctip">'+TRAITS[k].tip+'</span>'+
@@ -1339,6 +1359,12 @@ function addXP(n){
     setTimeout(()=>$('lvlOverlay').classList.remove('show'), 2000);
     const un = {2:'🍬 Confite en la tienda',3:'🎀 Moño en Cosas',4:'🍛 Gallo pinto en la tienda',6:'🌸 Corona de flores en Cosas',7:'🍰 Queque en la tienda',8:'✨ Collar dorado en Cosas',10:'🌟 ¡Una estrellita lo acompaña!'};
     if(un[after]) setTimeout(()=>toast('Desbloqueaste: '+un[after]), 2400);
+    /* el mundo del personaje crece con el cariño (cambia de paisaje) */
+    const bIdx = l => l<=3?0 : l<=6?1 : 2;
+    if(BG_JOURNEY[cur] && bIdx(after) > bIdx(before)){
+      const nm = (SPRITES[cur] && SPRITES[cur].name) || 'tu amigo';
+      setTimeout(()=>toast('🌄 El paisaje de '+nm+' cambió · su mundo creció'), 4700);
+    }
     if(after>=5) unlockLogro('corazon');
     checkFamilia();
   }
@@ -1841,7 +1867,7 @@ let _groundGrad = null, _groundKey = '';
    Y sobre los fondos pintados (así no quedan estáticos). */
 function drawSkyLife(sky){
   mariposaTimer--;
-  if(mariposaTimer<=0 && !mariposa && !sky.night){
+  if(mariposaTimer<=0 && !mariposa && !sky.night && !reduceMotion){
     mariposa = {x:-14, y: 60+Math.random()*70, v: 0.9+Math.random()*0.6};
     mariposaTimer = 1200 + Math.random()*1800;
   }
