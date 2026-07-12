@@ -192,6 +192,18 @@
   #lvlBig{font-size:30px;animation:alertBounce .8s ease-in-out infinite}
   #lvlTitle{font-size:13px;color:var(--plum);margin-top:8px}
   #lvlSub{font-size:7px;color:#a06a90;margin-top:7px}
+  /* tarjeta de bienvenida / meta (primera vez) */
+  #tutOverlay{position:absolute;inset:0;background:rgba(22,38,29,.78);display:none;
+    align-items:center;justify-content:center;z-index:31;padding:16px}
+  #tutOverlay.show{display:flex}
+  #tutCard{background:var(--cream);border:4px solid var(--plum);border-radius:18px;
+    padding:18px 20px 16px;text-align:center;box-shadow:0 6px 0 var(--plum);max-width:280px;
+    animation:lvlIn .4s cubic-bezier(.2,1.6,.4,1)}
+  #tutBig{font-size:26px;animation:alertBounce .9s ease-in-out infinite}
+  #tutTitle{font-size:11px;color:var(--plum);margin:6px 0 8px}
+  #tutBody{font-size:7px;color:#5a4a52;line-height:1.9;margin-bottom:12px}
+  #tutBody b{color:var(--plum)}
+  #tutCard .pxbtn{font-size:9px}
   #resOverlay{
     position:absolute;inset:0;background:rgba(22,38,29,.72);display:none;
     align-items:center;justify-content:center;z-index:29;cursor:pointer;
@@ -390,6 +402,13 @@
       <div id="lvlBig">💕</div>
       <div id="lvlTitle">¡NIVEL 2!</div>
       <div id="lvlSub">Amigos</div>
+    </div></div>
+
+    <div id="tutOverlay" onpointerdown="event.stopPropagation()"><div id="tutCard">
+      <div id="tutBig">🌷</div>
+      <div id="tutTitle">Cuidá a la familia</div>
+      <div id="tutBody"></div>
+      <button class="pxbtn pink" id="tutGo" onpointerdown="event.stopPropagation()" onclick="closeGoalCard()">¡Dale! 🌿</button>
     </div></div>
   </div>
 
@@ -1268,9 +1287,7 @@ function pick(k){
   refreshTop();
   if(!G.tut){
     G.tut = true;
-    setTimeout(()=>toast('Tocalo para darle cariño 💗 · mantené presionado'), 2600);
-    setTimeout(()=>toast('También podés alzarlo y lanzarlo con cuidado 🙌'), 6200);
-    setTimeout(()=>toast('Los corazoncitos bajan con las horas · volvé seguido 🌷'), 9800);
+    showGoalCard(SPRITES[k].name);
     saveAll();
   } else {
     toast(SPRITES[k].name+' está feliz de verte 🌷');
@@ -2516,6 +2533,23 @@ function charSpeak(){
   burst(W/2, charBox.y+6, 3, '💛');
   tone(cur==='rubble'||cur==='gaia' ? 300 : 560, .05, 'square', .08);
   vib(6);
+}
+
+/* ============ BIENVENIDA / META (primera vez) ============ */
+function showGoalCard(name){
+  $('tutBody').innerHTML = 'Elegiste a <b>'+name+'</b>. Hacelo feliz: llená sus <b>4 barritas</b> 💗 '+
+    'y jugá un ratito 🎮.<br><br>Con cariño su mundo va a <b>florecer</b> 🌱 — y la meta es que '+
+    '<b>toda la familia</b> te quiera.';
+  $('tutOverlay').classList.add('show');
+}
+function closeGoalCard(){
+  $('tutOverlay').classList.remove('show');
+  sfx('ok');
+  /* coaching progresivo: una cosa a la vez, apuntando a lo importante */
+  setTimeout(()=>toast('Mirá el ⚠️ de arriba: te dice qué necesita ahora 👀'), 500);
+  setTimeout(()=>toast('Tocá los 4 botones para cuidarlo · o tocá una barrita 💗'), 4600);
+  setTimeout(()=>toast('Tocá al personaje y te habla · mantené para mimarlo 🫶'), 8700);
+  setTimeout(()=>toast('Volvé cada día: sus barritas bajan con las horas 🌷'), 12800);
 }
 
 /* ============ TOCAR AL PERSONAJE ============ */
