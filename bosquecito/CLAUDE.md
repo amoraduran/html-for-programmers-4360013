@@ -34,7 +34,13 @@ Deployed by dragging the file into Vercel.
   idle→family colour map (see scratchpad/walk_recolor.py — skip transparent
   source pixels or the bg fills with the outline colour). Used by Saltá troncos
   (frame advances with run.scroll; a leap frame mid-air) and Frutillas (walks
-  facing its move direction, idle when still). Dogs' CHAR_ANIM already IS a walk. `drawAnimFrame(a,
+  facing its move direction, idle when still). Dogs' CHAR_ANIM already IS a walk.
+  In the home scene, settled awake characters STROLL (pick a target, walk there
+  via `stroll`/charOX, then drift back); the sprite shows the walk cycle whenever
+  `_oxVel` (charOX velocity) is non-trivial, flipped by `walkDir`. `CHAR_HURT` is
+  the recolored 2-frame hurt sheet — frame 1 (hunched recoil) shows when a person
+  is P.sick or dizzy; frame 0 is the RPG red-flash, unused. All new motion is
+  reduce-motion gated. `drawAnimFrame(a,
   cx, groundY, opts)` draws the current frame (opts.h overrides height; opts.frame
   forces one; opts.flip mirrors). The main draw + fruit/run minigames branch on
   CHAR_ANIM: animated chars draw a villager frame, others draw the grid. `pw/ph`
