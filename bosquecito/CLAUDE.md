@@ -27,6 +27,16 @@ Deployed by dragging the file into Vercel.
   otherwise. SPR_DATA keys for foods match the FOODS ids (manzana, confite,
   pinto, queque, medicina, pelota). Keep the emoji fallbacks intact — the suite
   and offline canvas rely on them.
+- Frame animation: `CHAR_ANIM[key]` = {sheet, fw, fh, frames, fps, disp}; the
+  people (andres, angelica) use recolored FreeVillager idle sheets, dogs + kids
+  (aurora toddler, leila baby) keep their drawn char-grids. `drawAnimFrame(a,
+  cx, groundY, opts)` draws the current frame (opts.h overrides height; opts.frame
+  forces one; opts.flip mirrors). The main draw + fruit/run minigames branch on
+  CHAR_ANIM: animated chars draw a villager frame, others draw the grid. `pw/ph`
+  are the rendered dims used by both paths (hitbox, shadow, mood icons). Dogs are
+  scaled down via `PET_SCALE`/`petSize()` (their grids are bigger than people's).
+  Scene props (trees, rock, bush, doghouse, bowl) draw via `drawSprBottom`.
+  Full sprite gap-analysis + sourcing notes live in ASSETS.md.
 
 ## Hard rules (do not violate)
 
