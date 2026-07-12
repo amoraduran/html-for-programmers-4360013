@@ -133,15 +133,19 @@ The cheapest, highest-impact upgrade to the "cute payoff" layer: **let them talk
 Ranked by impact on *"why would someone play and come back?"*
 
 **P0 — clarity & first impression (do now)**
-- [ ] Redesign the **title/main menu** (animated, on-brand, one clear CTA + goal).
-- [ ] **Onboarding**: goal card + progressive, skippable, do-it-to-learn coach-marks.
-- [ ] **Character speech** (tap-to-talk, per-character, mood/level-aware).
+- [x] Redesign the **title/main menu** — living meadow, whole family strolling,
+      goal statement + one clear CTA. *(done)*
+- [x] **Onboarding**: first-run goal card + progressive, once-only coach-marks
+      that point at the real UI. *(done)*
+- [x] **Character speech** (tap-to-talk, per-character, mood/level-aware) — SAYINGS
+      + moodKey(); warm 'bond' lines unlock at level 5. *(done)*
 
 **P1 — delight & world**
-- [ ] **Interactable props** (tap → shiver/hop).
-- [ ] **Prop cohesion** pass (fix pasted-looking rocks/plants).
+- [x] **Interactable props** (tap → shiver/hop) — tapProp() + propAnim. *(done)*
+- [x] **Prop cohesion** — rocks/bushes nestled into base grass; ambient grade +
+      contact shadows unify them. *(partial — deeper prop re-art still possible)*
 - [ ] **Streak/appointment**: make the daily gift + streak visible and rewarding;
-      a small "come back tomorrow" nudge.
+      a small "come back tomorrow" nudge. *(next)*
 
 **P2 — depth & aspiration (near future)**
 - [ ] **Cosmetics**: unlockable dress/shirt colours, hats — that actually render
