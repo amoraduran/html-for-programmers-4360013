@@ -509,6 +509,7 @@ Object.assign(SPR_DATA, { pa_gaia:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgA
 /* Carga los sprites embebidos como imágenes (una sola vez, sin red). */
 const SPR_IMG = {};
 Object.assign(SPR_DATA, { pa_andres_walk:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAwCAYAAACxIqevAAAE8klEQVR42u2dP0hbURTGTx5PQSEQyCAEt5LJSYQuCgqVOgndOjm4ODg4FFSwg3SooIKDg4NLB5e6CZkiFiyYpUWEglNwKEjAQkAQFIzwOuhNb54vL39Meed7+X4gpLSVc+/5vnP/vHdvRAghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhGgnwS7AIpvOePafi+USc0hg9ZNgAnAMnE1nPK+vvzaBd7csQtQPrH7cbk9ANp3xENoQFDsNTP2g68dlAvD49nm6+nnyw77QwNQPqn5cJmBfKH62gfoBWYIxATrE/+Zj7nENTwNTP8D6cbo5ASYJaJi4bSPTwNQPon4cJkC/eUVElhaGZWlh+NnfLy6PPtvYpYGpHxT9OEyAXgNn0xmvkkxJJZmStZ1zERHJX11W25K/uhQRkUoyBVWEqB/qx5BoNgGLy6MiIjI1MFgjoPzVpWyuF1Q+TjUJMKzMDwX+u7Wdc+m5uVbVBn/sNnY7jLC0xe9vC/VD/bRcgJiAaA1rYmsGjQXIDF4mD9RPNPGvzA811FJU8butJMA0IigBWgnqfO0xh8WOgL/woOknrPgg6Ses6GvBbccISAZGM7K9XDEjU5CZUeIP6neEXKAWf0OxXEpkRdTvCzphDei5uVZfQcPi31wvQMY+NTAYmAvtyy9/8UHEbsPK/JD03FxLWN+j8P3TlEr9NP0UDLUQGUNrTUBYzFo3Z+sZ92jrfU3x3FwvxMLAKANAvUHYP6BBzID8swhj4iAja09A3NmdGVH1KHhzvVAtnuYnzMBf3r1S2a9IA8BLZkFR6sdpx8T1ChETwCJk6wY1/qmBwZZmDZr1UyyXEvZxF22+dVppxPhqHnL6rDkBYRxtvW9K2LMHF5EawSy/RB7PdrU7a0AeCJCKUD39qC1ANuOr+eoPahHSlIBmYm30WBidub1TlUZGGQCaGSAqyZRK3zqd+CXajwJoTkAnTTy3dwq5Z1FJptQUoW4cAKLEbcXAcaaSTElWRMXlWE8m8MznZs0YVez+eNvVz9zeqezOjEDqZ/bgQvVxGK04HTUw+EautmWjETPCO1l2vO3qR8tMzsyCXrKfpS03WvXjdouhTefXe7t1ZX5IEB7Z1xNRXF430GJ4fxzUz/+hqWTbb4c2SgDCiewgNrbP1H/DRNBSxn24h4g77vrReKA2qA1eX788uL1q9JNoRfhhU7iN7bPHX6jUDH7zmhfj7Jv6EAuQaQuC8IPu07ENrLkt/lsdE3e3NUtHpDxoKkAtLcHs0ct+sxXxus1KMgV3RMAcMER9IGAGKdvAfhOj4PX117QBRj/pjCfJXjUxtbUJbSo90gZdo+MASLgP99DxmxEXTT9oBQdCy+wCjOVX0J6JoRvOu2kH9RH82OSYFHKHLEBRGNdeEiAQp2+XQGVscqz6+fj4B5x+7OXuxMRr/TMg/+6//0mFWVeOTr/9959yhxDfdmmLKcpRoNWYT45OoERva6OQO3yuHxG/xiD0gzgL1XbRmiMEchTmsou8pAhp2Q/t2gJkG9g/KhPSCHvGHLd7g1QtwfymDeroYrmUkNxh7TJMKQdff8YmeWhtqVfon+6cgrjO9c+v49joR0Nb3E4KHS05iGKKc8xoBRVxMNMWc9c9BSv+vmdbCPtcSVvcTgaqPTn29D+bzniIYrJjRtl3oH6on3r8BbS9N7hn1SIaAAAAAElFTkSuQmCC', pa_angelica_walk:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAwCAYAAACxIqevAAAD50lEQVR42u2csWsTcRTHX0oWzaCYRToUFNq9FeGIQxcRHDoXAsWh0KFkEqR/gUOxdCoZXAsBN8FBkDo4WLI06ZxAxA7BJW5txzjohcvlLvld0nrvXT4fCJRch/d+7/ve773f3UUEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACCGHEtgg+XiYj/8XbvXJX5gWj85AmDD9v6du6PBu76iCKEf0/rJz3MAlouLfe0+xNlOAqOfLOgnTwBs8fXtxuDv568/CAmMfizrJ08AbNpuqfNBP+hn5hGMAAAJjH5umoUku5e1AFjffbNmP/rB/kQFCAAglRGM6q/D/vPtg8F3Bc8TEZGL+r6IiLROG7JSWlN5kIt+0A8dkIicbx8MPkvenix5e4NrrdNG5O1hTbYHuazVRUSGfGhWqqp9QD/oJ3EBClZ/ApDO7tWsVCOvRfmguXtAP+hnqg4od31FAJTZHueLRtCPfjToJ7IAjZsJCcD/ZfVo19zZQ7NSFTYAmKkDIgA6ik+7182Fi1Bw3f3/sZa8bAC3R1gzmvWTyUNoSwGYJYG1dw6rR7smE9jqBhBH67RhrwOKWnirAbCY1BbWdVLx8e0fl8CVnx9Njl9WNuFC2cvuCGYlANqDMMv4+37riYpD3OAaB4uPSxF9tvFC3UG0pQ0gaXw06WfBdZTxE9lqMmsNQJSdQVst7cqFsjd14vpxSDsWrhrXqp9w/q6U1kTk78OHvcffbHZAwRbad8R/mlJ7FxQOgMYgxM3t44QdTJI0k2C5uNif5ozBT+Dvn77Iq/u9gR/aEjoLY1lw5PX1r6WRcCpAzUpVLmt1s3e9Lmt1KXbWx3ZEGgumFS7q+3JR35eV0tpI9+OSwDvHZyoKzcnhpvO6a9kAXAnrP7j2pu6CFTvrQ0+0WnoVoNhZHwlE2gGIS2gRkZPDzYn/+/TetkofXBPYL047x2eDT9q+RBXSLBDWf6Hs6XwVY57QVkDbvW7O9XdysnS43u51c/7HUhG1ugFoIT/PzhfKnsqx8l8RMtFVBm1NmoSa1n8WP+CWOqBJ83sWb29r6wjirmsqnHG2urxTZWnNtdufuQIEOpLC8tPEgH5uvQDxmzTpYH0X9u23qh/L66/F9sQFyNrY5fpKiVWy9sQuHcR86YcRDABsj2AAwBiWSgGyeifMX3wLIwwH0YwwWdVPbAFK+g4MB9GIH/2gn6TMzYOIL2vvRETkc/lNZnwB9GNdP/mbWnSLSWHNZqv2oh/snakDGpofj0avP3zwSP3i//r9Y8gXCzZP8sVSqz8O9DO/+sm7GOowJ6qe3WPs71sWjoVnf9AP+pnEH4SCSaE8q4QUAAAAAElFTkSuQmCC', pa_aurora_walk:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASAAAAAwCAYAAACxIqevAAAES0lEQVR42u2cP2gTURzHf5EUh4JIQ4tUqIqkuDhIwcEuVYJQxI51URQOaueAIBQcCoIg6CZVOLDUJRnboVCkdWkHQTp0CclQLRhcUkTo0CkO9h2vzSV3abT5vfPzmdq7XPu7e9/v7/3en4sIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAYki1e0E2M1g/eqxSq6Z4lIB+oF3S7Yrn6pXhxhMlqbsiItcN4HL86If4j52AmorHsd7XZQO4HD/6If6OKyCb11PXgp9z+bK74nFd/I6Cfoj/2AnIFg8GIH70g36Oyyn5Dzia/V03QBIMjH7QT+wEZDcA4qd87iR+9IN+jj0Emxibk7WDau3m8Ft6L6qfyGePftDPX0tANmvlx9ZvhUBsmlcDXDWAa/GbmGemV2Prx75Oq4Zc1I/2+GMnoK1SWSbGmp//+OqeiIjk8gV1S5JbpfJBA7Q2gEsmbtYBdNPAJobZt+8PjuzI/uZQ7GvfPRgREZGpBV3L2i7qx6ZSq6akJHWN8afjCmP+Z6bh3OlrO4eSj9qHL+EbsDRXEMbE+5vxrjHm7ZaBs5nBeqCDvWXZ6B0XEZHnc7eCzzRLpqN3b8vDszX0o6DDO2ndpOP2SmPnn0b+sVy+wLb6v2TkDeuYMXErA4voMvCzx48CA2czg/VWwzGbqYUvaOgfaOrdgxH5FqOAOOkRTLqTi/c3h8QvevJsd7urpX/8imKnIf7AwEsrXS/77Srixt6y5PKFyOrBMP8zI+tLK11rh0qtmsrlC20PA/2iJz92t2W9y8PHqHaZmV4NDBumIfXJp/dl089s9I7Ljb1lfUOwSq2amlqQuojIuT4vVqnqGn7Rk9k7fYEBtGBXk63Kf2NgDW3Q6v/7xeTqx1VMAWH0o24IZjjXd6npOW/SPzTO10pYhr9f/HxoDqXbk592FXE0DlcNnM0M1pOgH7/oyYfh6w3H3yiP2xQRWguIWAnIm/SdHv9GGUD2nqgSTNIMnHT9aH7+2uNPy3+AN+nLWrlx74M36cuFg+SjefKzlYGfz91i0vaEnn+Yhlx4/pr1E7kKFnf1wgUO732QIPG4PAehvXpIkn7CNVSgoTsg8S+jVmrVVFSJqXn+JGkGTqJ+6AD+QQIyKy+fvr9IrLiSMHyZmV5VuUnOxLT4aRr9oJ/2hmBRE1c22gVm7sUvenJ5NCsi8TZVutB7ae0c2tGP9g7O1k//QI+cyV5MjH40eDcdVyRmk5uNi18R8avyVRYrbvTKRiATY3MN58yyvEmq2u/DvE9l82cHt3u4MiowcYYlTKOf/oGersaYalU+t5onsXu5H7vbqudR7N9didnE2T/QE2pezfeBfvTo5/JoNrR40HIfoRVQklaE7Htx8YXCrVK5WXuo/eoK9KOH9aUV1frpaB+QvYXbFVyJOer1iiSYHP2gn9920MIqGCEM+AAAAABJRU5ErkJggg==' });
+Object.assign(SPR_DATA, { pa_andres_hurt:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwCAYAAADuFn/PAAACS0lEQVR42u2ZvUvDQBTA3x1WUBCEDEIQnLK0U3BsnSw6OTs5uHZwKLRCnRWq4ODg4F9gt0K3olPp5NBJl+Dgki1QEFrQ4Rwk4dpqGpuau9e835SPG+69d+/zAAiCIAiCIAiCIAiCIAiCINIAi7LIMkwhvzueyzAKq6McLMqmO3Z25NtO7wWdESzDFGJldVT44UC5HPyvysd68seVrwtLaYu5j+cHwXOx3FC+H06nnzwg8dO/e9aKXoGozAGLiK98ORShM0DHzk6UdDqXndUTG6on9sT/ymleuRwsTvzXuRy1DFN8rq0H77VS7sd1F7fPkHnvK5ODxU2+OhphXPkysiEubp8BAJQaIHVlqK90XeCLVnpahikqp/lfQ45u8GkjB8zUSjnIvPdxGOC32B5mBN3iv2WY4uH6MHi/qnfB8VwWZgSV8T/IAeOnH+OwTWZ/YxOK5QYKGTim0vI/uDvaVtoLpK4T1s4D5PDz19OPpSMO47j5qtQLFt4DwpoyraugtHmBsirou9QEAQDok6/juaxYbqCShfubjbNhnbzgJ1lqpVxoZ6yya57pUh5DUzaeA8KUfHnT+1aGgkv6mYZxfncsG6ZjZ2GnB0JX15eHcHJnrPq6ks+ifN/NMc6K/NGDLgcl1Y2Y47mMDQcj3pB0LuNxBZC9YBFK0sTL0DQIKSfgq3p34n+hWAieu602haCkw5Cs9PzBXqJezOchAIWhhAyAfVTtX9BQDkiY5v3TVC+GVltYW8s4y1CsPQEaD4iqXF2N4Lx9zHXdPPkCrNwxlEwiMkcAAAAASUVORK5CYII=', pa_angelica_hurt:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwCAYAAADuFn/PAAAB7ElEQVR42u2ZP0/CUBTFTxsWYJPFMGgccEdj0uhKTBhInEmc3AgTi5/AweDYMPgBmvAhXAmL4AyDiQNxwQ0Y69SGf+GVf3n3tec3NW0h797z3r3vvAKEEEIIIYQQQgghhBBCyNGxVC8Ucnl/+d5wPLJMClJyDJZq4H46s/qj2dQYEaTHYG87cNNmvvQYUkmqtx8vlfC61GiLGJOdxORLwgaRJwDrP1dAYkjtMnP8dAaFXN6XuhUNYvh6egvvZR0HAPDTfQUADDo9XN5eaY9h5xUQiCB1Zs0nHwAmXhcAcOY8h/f69Zb2GOw41v5+vbX22ToRxPSAOCR/GwIxxDZhazY1fvYX3ZoZu6Dl2R+ck2wSwZTzoGUR5md+0a1BXBM26aBNlXgT4qAP0C1AXJpvIZf3B50eslUncgO+q9zL2oZuU34k+wBTyk/sSlDgcjeRrTrhKnHPHyjAMUXYZMoC3h+vta7kvQSQfhxhAqnheGTFIYnD8cgqNdrKOCZed6EM3XgA8KlPgGDw63YVpu2OTPQve/eAOJQhnaeiiTNiUXwCBUiSEz7En0gsQ1G2oFwBLEkUQHcjPpgANGVcASuUvSbKXjPyu9qMmArV50nphm3hq5i7+vz05EKvE1YlXuUwpZae37/vqA5Z2/j/AfFo11h2mLZnAAAAAElFTkSuQmCC', pa_aurora_hurt:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwCAYAAADuFn/PAAAB40lEQVR42u2Zv2vCQBTHX0L+ArOUbB0iIjhkLoFWpEtpx3YtCNbZVeggCJ3aVQeh4GTHdivFCuIo2UQailCouOi/kC6N2BjzA6F3l3w/U7h3w3vvLt93744IAAAAAAAAAAAAAAAAAAAAAAAAAAAAkDSksAm6qjneMXs5l0QKkucYlDDHh0Z+a9y0yBFlEXRVcwq57LZhykcMctzki7bzfZPPEUqa9PahYqy/S7UPLnyS05h8npAhP/gDUrv7U1EDLo5b9P4r9yfZthh9QBQJMq0J1/2ArmpOvdoPnNNsFZnHICdV/8OSz2UN8CbftCbCS1CzVRSzDxA1+bqqOY32IxF9ifUH7L528F+IoZH3vWPhidub6522zlOZjs5Pmccg+S2AW2BFK8a6qjlv91cb3W6PDjKHO+c3zjJERFTpjpnFICel8Hop1XqB9vJlh88aEGdH834UDUt0pTsmIrZX04rrgGmRw9qZfbGXc6lU6601PcpRlJs+wF7OpU1nosgSj4XYG0cQ9Wqfuf+puQ0VohFLGoPvu0D786DKbyMW1g+48jQ08lw/UbqLMHp5/TPuXlUXclmmz5NK1OR7HTQt4v7o+jmyiYhosZptF9spOUE9AiQoJShxZCeunTWL1Wwv+3/wA44R0rnrviOsAAAAAElFTkSuQmCC' });
 for(const k in SPR_DATA){ const im = new Image(); im.src = SPR_DATA[k]; SPR_IMG[k] = im; }
 
 /* ---- Fondos pintados (craftpix nature, cover-crop 340x250, 48 col) ---- */
@@ -561,6 +562,13 @@ const CHAR_WALK = {
   andres:   {sheet:'pa_andres_walk',   fw:48, fh:48, frames:6, fps:10, disp:96},
   angelica: {sheet:'pa_angelica_walk', fw:48, fh:48, frames:6, fps:10, disp:94},
   aurora:   {sheet:'pa_aurora_walk',   fw:48, fh:48, frames:6, fps:10, disp:66}
+};
+/* Pose de "no me siento bien" (cuadro 1 del hurt = encogido; el 0 es el flash
+   rojo, no lo usamos). Se muestra cuando está malito o recién mareado. */
+const CHAR_HURT = {
+  andres:   {sheet:'pa_andres_hurt',   fw:48, fh:48, frames:2, disp:96},
+  angelica: {sheet:'pa_angelica_hurt', fw:48, fh:48, frames:2, disp:94},
+  aurora:   {sheet:'pa_aurora_hurt',   fw:48, fh:48, frames:2, disp:66}
 };
 /* pajarito que cruza el cielo (animado, 8 cuadros) */
 const BIRD_ANIM = {sheet:'bird_sheet', fw:16, fh:16, frames:8, fps:12};
@@ -1849,6 +1857,7 @@ let particles = [], eatAnim = null, bathAnim = 0, petHearts = [];
 let squash = 0, hyper = 0, petting = false, petStart = 0, lastPetFx = 0;
 /* física del personaje (alzarlo, lanzarlo, rebote) */
 let heldChar = false, charOX = 0, charOY = 0, charVX = 0, charVY = 0, airborne = false;
+let stroll = null, _prevOX = 0, walkDir = 1, _oxVel = 0;   /* paseo espontáneo por la escena */
 let grabDX = 0, grabDY = 0, dizzy = 0, moveBuf = [], dirFlips = 0, lastMX = 0, movedDist = 0;
 let charBox = {x:0,y:0,w:0,h:0};
 let dropFood = null;           /* comidita arrastrable */
@@ -2106,10 +2115,23 @@ function draw(){
         if(charVY === 0){ airborne = false; charVX *= 0.4; if(Math.abs(charVX)<0.2) charVX = 0; }
       }
     }
-    if(!heldChar && !airborne && charOY===0 && Math.abs(charOX) > 1){ charOX *= 0.92; }
+    /* mientras pasea no amortiguamos (el paseo maneja el movimiento) */
+    if(!stroll && !heldChar && !airborne && charOY===0 && Math.abs(charOX) > 1){ charOX *= 0.92; }
     if(dizzy > 0) dizzy--;
-    /* comportamiento de reposo: brinquito espontáneo */
-    if(!P.sleeping && !gameMode && !heldChar && !airborne && Date.now()-lastInteract > 9000){
+    /* comportamiento de reposo: PASEO espontáneo por la escena + brinquito */
+    const settled = !P.sleeping && !gameMode && !heldChar && !airborne && charOY===0 && dizzy<=0 && !P.sick && Math.abs(charVX)<0.1 && !reduceMotion;
+    if(settled){
+      if(stroll){
+        const spd = 0.85;
+        if(charOX < stroll.target-1) charOX = Math.min(stroll.target, charOX+spd);
+        else if(charOX > stroll.target+1) charOX = Math.max(stroll.target, charOX-spd);
+        else stroll = null;                                   /* llegó */
+      } else if(Date.now()-lastInteract > 6000 && frame%6===0 && Math.random()<0.02){
+        const t = (Math.random()*2-1)*82;                     /* nuevo destino */
+        if(Math.abs(t-charOX) > 26) stroll = {target:t};
+      }
+    } else if(stroll){ stroll = null; }
+    if(!P.sleeping && !gameMode && !heldChar && !airborne && !stroll && Date.now()-lastInteract > 9000){
       idlePulse++;
       if(idlePulse > 420 && Math.random() < 0.01){
         idlePulse = 0;
@@ -2117,6 +2139,9 @@ function draw(){
         if(P.ale > 70){ tone(660,.06,'square',.08); tone(880,.06,'square',.08,.08); }
       }
     }
+    /* velocidad horizontal → sabemos si CAMINA y hacia dónde (para el ciclo) */
+    _oxVel = charOX - _prevOX; _prevOX = charOX;
+    if(Math.abs(_oxVel) > 0.3) walkDir = _oxVel < 0 ? -1 : 1;
     const rock = heldChar ? Math.sin(frame/6)*0.06 : 0;
     const px = W/2 - pw/2 + gx;
     const py = H - 34 - ph + bob + footPx - charOY;
@@ -2152,11 +2177,17 @@ function draw(){
       }
     }
     const baseY = py + ph;
+    const walking = charOY===0 && !heldChar && !P.sleeping && Math.abs(_oxVel) > 0.35;
+    const flinch = (P.sick || dizzy > 0) && CHAR_HURT[cur];
     ctx.save();
     ctx.translate(W/2 + gx, baseY);
     if(rock || wag) ctx.rotate(rock + wag);
     ctx.scale(sclX, sclY);
-    if(anim){ drawAnimFrame(anim, 0, 0, {}); }
+    if(anim){
+      if(flinch){ drawAnimFrame(CHAR_HURT[cur], 0, 0, {frame:1}); }          /* encogido: malito/mareado */
+      else if(walking && CHAR_WALK[cur]){ drawAnimFrame(CHAR_WALK[cur], 0, 0, {flip: walkDir<0}); }
+      else { drawAnimFrame(anim, 0, 0, {flip: isDog && walking && walkDir<0}); }   /* perro camina = su anim + flip */
+    }
     else { drawSprite(ctx, rows, px - (W/2+gx), py - baseY, size, blinking||P.sleeping, EYES[cur]); }
     ctx.restore();
     drawAcc(px, py, size, sprW, sprH, anim, pw, ph);
