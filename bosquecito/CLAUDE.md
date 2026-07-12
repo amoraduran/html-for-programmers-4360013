@@ -90,6 +90,16 @@ Deployed by dragging the file into Vercel.
   to the procedural depth scene when an image isn't ready, so the jsdom suite
   still passes (drawSceneBG returns false without a loaded image).
 
+- Family face portraits: `FACE[who]` holds each person's/dog's features (skin,
+  hair/style, beard, moles, earrings, dog coat/patch) taken from the real family;
+  `drawFaceInto(g, who, mood, sc)` renders a ~24px pixel head into a canvas ctx,
+  swapping eyes/mouth per `faceExpr(mood)` (happy/hungry/tired/dirty/sad/sick);
+  `facePortrait(who, mood)` caches a dataURL (wrapped in try/catch so jsdom's
+  missing `toDataURL` just yields no image). Portraits render in the tap-to-talk
+  speech bubble (`.facePic` in `.bubbleRow`). First pass is drawn from the owner's
+  text descriptions — refine to true likeness when photos arrive; the whole thing
+  is a set of pixel-rect params, easy to tune.
+
 ## Hard rules (do not violate)
 
 - All visible text: Costa Rican Spanish with voseo (tocá, elegí, alzalo).

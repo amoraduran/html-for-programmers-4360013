@@ -120,6 +120,11 @@
     background:var(--cream);color:var(--plum);border:3px solid var(--plum);border-radius:10px;
     font-size:6px;line-height:1.7;padding:7px 9px;max-width:80%;display:none;z-index:3;
   }
+  .bubbleRow{display:flex;align-items:center;gap:7px;text-align:left}
+  .facePic{
+    width:34px;height:34px;flex-shrink:0;image-rendering:pixelated;
+    border:2px solid var(--plum);border-radius:7px;background:#fbf1dd;
+  }
   #cureBtn{
     position:absolute;bottom:10px;right:10px;display:none;z-index:3;
     font-family:inherit;font-size:7px;background:var(--gold);color:var(--plum);
@@ -2730,6 +2735,161 @@ const SAYINGS = {
     bond:['*te llena de lengüetazos* 😝']
   }
 };
+/* ============ RETRATITOS DE LA FAMILIA (caritas con gesto) ============ */
+/* Caritas pixel de cada quien, con expresión según el ánimo. Se dibujan en un
+   canvas aparte y salen en la burbuja al tocar (charSpeak). Rasgos tomados de
+   la familia real: ojos rasgados en todos; lunar en la barbilla en las tres
+   mujeres; Andrés con moño (man bun) + sien rapada y candado; Aurora pelo bien
+   largo + aretes + lunar en la mejilla; Angélica piel más canela; los perros
+   con sus marcas (Rubble boxer crema con mancha en un ojo, Gaia salchicha
+   chocolate). Facilísimo de afinar cuando lleguen las fotos. */
+const FACE = {
+  andres:  {kind:'man',   skin:'#eac196', shade:'#d3a074', hair:'#3b2a1e', brow:'#2e2016',
+            bun:true, undercut:true, beard:'#3b2a1e', lips:'#a9614e'},
+  angelica:{kind:'woman', skin:'#cf9b6e', shade:'#b6835a', hair:'#241811', brow:'#1c130d',
+            longHair:2, chinMole:true, lips:'#b5566b'},
+  aurora:  {kind:'girl',  skin:'#e7b892', shade:'#d09a72', hair:'#2a1c12', brow:'#22160e',
+            longHair:3, earrings:'#f6d25c', cheekMole:true, chinMole:true, lips:'#c46a72'},
+  leila:   {kind:'baby',  skin:'#eec19a', shade:'#dba579', hair:'#2a1c12', brow:'#3a281a',
+            babyHair:true, chinMole:true, lips:'#c77a6a'},
+  rubble:  {dog:'boxer',    coat:'#ece0cf', shade:'#d6c4a8', patch:'#7a5233', muzzle:'#d8c3a5', nose:'#2e2137'},
+  gaia:    {dog:'weiner',   coat:'#5a3a24', shade:'#482d1b', ear:'#3f281a', muzzle:'#6e4a30', grey:'#9a8a7a', nose:'#2e2137'}
+};
+/* ánimo → forma de ojos y boca */
+function faceExpr(mood){
+  switch(mood){
+    case 'hungry': return {eyes:'open', mouth:'open'};
+    case 'tired':  return {eyes:'half', mouth:'flat'};
+    case 'dirty':  return {eyes:'open', mouth:'flat', smudge:true};
+    case 'sad':    return {eyes:'sad',  mouth:'frown'};
+    case 'sick':   return {eyes:'half', mouth:'wavy', pale:true};
+    default:       return {eyes:'happy',mouth:'smile'};   /* happy */
+  }
+}
+function drawFaceInto(g, who, mood, sc){
+  const F = FACE[who] || FACE.andres, ex = faceExpr(mood);
+  const px = (x,y,w,h,c)=>{ g.fillStyle=c; g.fillRect(Math.round(x*sc),Math.round(y*sc),Math.round((w||1)*sc),Math.round((h||1)*sc)); };
+  const eyeC='#2e2137';
+  if(F.dog){ drawDogFace(px, F, ex); return; }
+  /* ---- persona ---- */
+  const baby = F.kind==='baby';
+  const x0 = baby?5:6, x1 = baby?19:18;              /* cara un poquito más ancha en la bebé */
+  /* pelo largo detrás (mujeres/niñas) */
+  if(F.longHair){
+    const btm = 19 + F.longHair;                     /* qué tan largo cae */
+    px(x0-1, 6, 2, btm-6, F.hair); px(x1-1, 6, 2, btm-6, F.hair);
+    px(x0-1, btm-1, x1-x0+2, 1, F.hair);
+  }
+  /* piel de la cara (óvalo por filas) */
+  const rows = [[7,x0+1,x1-1],[6,x0,x1],[5,x0,x1],[4,x0,x1],[3,x0+1,x1-1]]; /* arriba redondeado */
+  px(x0, 6, x1-x0, 15, F.skin);                       /* bloque principal */
+  px(x0+1, 5, x1-x0-2, 1, F.skin);
+  px(x0+1, 21, x1-x0-2, 1, F.skin);                   /* barbilla */
+  px(x0+2, 22, x1-x0-4, 1, F.skin);
+  px(x0-1, 12, 1, 3, F.skin); px(x1, 12, 1, 3, F.skin); /* orejitas */
+  px(x0+2, 20, x1-x0-4, 1, F.shade);                  /* sombra bajo la cara */
+  /* pelo arriba */
+  if(F.bun){                                          /* Andrés: moño + rapado a los lados */
+    px(9,2,6,1,F.hair); px(8,3,8,2,F.hair);           /* copete central corto */
+    px(10,0,4,2,F.hair); px(11,-1,2,1,F.hair);        /* el moño arriba */
+    px(x0,6,1,4,F.shade); px(x1-1,6,1,4,F.shade);     /* sien rapada (sombra) */
+  } else if(F.babyHair){
+    px(9,3,6,2,F.hair); px(10,2,4,1,F.hair);          /* mechoncito */
+  } else {                                            /* mujeres/niñas: melena con flequillo */
+    px(x0,3,x1-x0,4,F.hair); px(x0+1,2,x1-x0-2,1,F.hair);
+    px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo sobre la frente */
+    px(x0-1,7,2,4,F.hair); px(x1-1,7,2,4,F.hair);      /* lados enmarcando */
+  }
+  /* cejas (más gruesas en él, finitas en ellas) */
+  const bw = F.beard?3:2;
+  px(x0+2,10,bw,1,F.brow); px(x1-2-bw,10,bw,1,F.brow);
+  /* ojos rasgados (almendrados: rabillo hacia arriba y afuera) */
+  const lx=x0+2, rx=x1-4;
+  if(ex.eyes==='happy'){                              /* ojos de sonrisa ^^ */
+    px(lx,12,1,1,eyeC); px(lx+1,11,1,1,eyeC); px(lx+2,12,1,1,eyeC);
+    px(rx,12,1,1,eyeC); px(rx+1,11,1,1,eyeC); px(rx+2,12,1,1,eyeC);
+  } else if(ex.eyes==='half'){                        /* entrecerrados */
+    px(lx,12,3,1,eyeC); px(rx,12,3,1,eyeC);
+    px(lx,11,3,1,F.shade); px(rx,11,3,1,F.shade);
+  } else if(ex.eyes==='sad'){                         /* caídos */
+    px(lx,12,3,1,eyeC); px(lx,13,1,1,eyeC);
+    px(rx,12,3,1,eyeC); px(rx+2,13,1,1,eyeC);
+  } else {                                            /* abiertos, almendrados */
+    px(lx,12,3,1,eyeC); px(lx-1,11,1,1,eyeC);
+    px(rx,12,3,1,eyeC); px(rx+3,11,1,1,eyeC);
+  }
+  /* naricita */
+  px(11,15,1,1,F.shade); px(12,15,1,1,F.shade);
+  /* barba candado de Andrés (bigote + barbilla + patillita) */
+  if(F.beard){
+    px(9,17,6,1,F.beard);                             /* bigote */
+    px(9,18,1,1,F.beard); px(14,18,1,1,F.beard);      /* costados de la boca */
+    px(10,19,4,1,F.beard); px(10,20,4,1,F.beard); px(11,21,2,1,F.beard); /* barbilla */
+    px(x0+1,16,1,1,F.shade); px(x1-2,16,1,1,F.shade); /* cachetes con poca barba */
+    px(x0+1,17,1,1,F.shade); px(x1-2,17,1,1,F.shade);
+  }
+  /* boca */
+  const mc = F.lips || '#a9614e';
+  if(ex.mouth==='smile'){ px(10,18,4,1,mc); px(9,17,1,1,mc); px(14,17,1,1,mc); }
+  else if(ex.mouth==='open'){ px(11,18,2,2,'#7a3b3b'); px(11,18,2,1,mc); }
+  else if(ex.mouth==='frown'){ px(10,19,4,1,mc); px(9,18,1,1,mc); px(14,18,1,1,mc); }
+  else if(ex.mouth==='wavy'){ px(10,18,1,1,mc); px(11,19,1,1,mc); px(12,18,1,1,mc); px(13,19,1,1,mc); }
+  else { px(10,18,4,1,mc); }                          /* flat */
+  /* mejillitas (niñas/bebé) */
+  if(baby || F.kind==='girl'){ g.globalAlpha=.5; px(x0+1,16,2,1,'#f2a7ac'); px(x1-3,16,2,1,'#f2a7ac'); g.globalAlpha=1; }
+  /* aretes */
+  if(F.earrings){ px(x0-1,15,1,1,F.earrings); px(x1,15,1,1,F.earrings); }
+  /* lunares */
+  const mole='#6a4a35';
+  if(F.chinMole) px(12,21,1,1,mole);
+  if(F.cheekMole) px(x0+1,16,1,1,mole);               /* mejilla derecha de ella = izquierda nuestra */
+  /* estados */
+  if(ex.smudge){ px(x1-3,16,2,1,'#a98a5c'); px(x1-4,17,1,1,'#a98a5c'); }
+  if(ex.pale){ g.globalAlpha=.4; px(x0+1,15,2,2,'#9fbf88'); px(x1-3,15,2,2,'#9fbf88'); g.globalAlpha=1; }
+}
+function drawDogFace(px, F, ex){
+  const eyeC = F.nose;
+  if(F.dog==='weiner'){                               /* Gaia: salchicha chocolate, orejas largas */
+    px(2,7,3,11,F.ear); px(19,7,3,11,F.ear);          /* orejotas caídas */
+    px(6,6,12,14,F.coat);                             /* cabeza */
+    px(7,5,10,1,F.coat); px(7,20,10,1,F.coat);
+    px(8,15,8,5,F.muzzle);                            /* hocico */
+    px(9,10,2,1,F.grey); px(13,10,2,1,F.grey);        /* canitas (viejita) */
+    px(10,17,4,2,F.nose); px(11,19,2,1,F.nose);       /* nariz */
+  } else {                                            /* Rubble: boxer crema */
+    px(3,6,3,6,F.shade); px(18,6,3,6,F.shade);        /* orejas */
+    px(5,6,14,14,F.coat);                             /* cabeza cuadrada */
+    px(6,5,12,1,F.coat); px(6,20,12,1,F.coat);
+    px(6,9,5,5,F.patch);                              /* mancha marrón sobre un ojo */
+    px(8,15,8,5,F.muzzle);                            /* hocico */
+    px(10,16,4,2,F.nose);                             /* nariz */
+  }
+  /* ojos según ánimo */
+  const lx=8, rx=14;
+  if(ex.eyes==='half'){ px(lx,12,2,1,eyeC); px(rx,12,2,1,eyeC); }
+  else if(ex.eyes==='sad'){ px(lx,13,2,1,eyeC); px(rx,13,2,1,eyeC); }
+  else { px(lx,11,2,2,eyeC); px(rx,11,2,2,eyeC); }
+  /* boca / lengua */
+  if(ex.mouth==='smile'){ px(10,20,1,1,eyeC); px(11,21,3,1,'#e78aa0'); }   /* lengüita feliz */
+  else if(ex.mouth==='frown'){ px(10,20,4,1,eyeC); px(9,19,1,1,eyeC); px(14,19,1,1,eyeC); }
+  else { px(10,20,4,1,eyeC); }
+}
+/* retrato cacheado (dataURL) para la burbuja; a prueba de jsdom (toDataURL) */
+const _faceCache = {};
+function facePortrait(who, mood){
+  const key = who+'_'+mood;
+  if(key in _faceCache) return _faceCache[key];
+  let url = '';
+  try{
+    const sc = 3, cv = document.createElement('canvas');
+    cv.width = 24*sc; cv.height = 24*sc;
+    const g = cv.getContext('2d');
+    drawFaceInto(g, who, mood, sc);
+    url = cv.toDataURL();
+  }catch(e){ url = ''; }
+  _faceCache[key] = url;
+  return url;
+}
 function moodKey(){
   if(P.sick) return 'sick';
   const m = [['hungry',P.ham],['sad',P.ale],['tired',P.ene],['dirty',P.hig]]
@@ -2749,7 +2909,9 @@ function charSpeak(){
   let pool = (s[moodKey()] || s.happy).slice();
   if(moodKey()==='happy' && petLevel(P) >= 5 && s.bond) pool = pool.concat(s.bond, s.bond);
   const line = pool[Math.floor(Math.random()*pool.length)];
-  speech(line, 2600);
+  const face = facePortrait(cur, moodKey());
+  const html = face ? '<span class="bubbleRow"><img class="facePic" src="'+face+'" alt=""><span>'+line+'</span></span>' : line;
+  speech(html, 2600);
   burst(W/2, charBox.y+6, 3, '💛');
   tone(cur==='rubble'||cur==='gaia' ? 300 : 560, .05, 'square', .08);
   vib(6);

@@ -167,7 +167,14 @@ Ranked by impact on *"why would someone play and come back?"*
       characters — neither fit, so hats were built to match the game's cozy style.
       Still open: more hat variety / seasonal cosmetics.
 - [ ] **Meaningful unlock gating**: reach-for-it games/food/interactions by level.
-- [ ] **Expressions** (needs face art from the owner — parked).
+- [x] **Personalized face portraits + expressions**: per-character pixel faces
+      (`FACE` + `drawFaceInto`/`facePortrait`) built from the family's real features
+      (Andrés man bun + candado beard + shaved sides; Angélica tan skin + chin mole;
+      Aurora long hair + earrings + cheek/chin moles; Leila baby; Rubble cream boxer
+      with an eye patch; Gaia chocolate dachshund with long ears), with an expression
+      set (happy/hungry/tired/dirty/sad/sick) mapped from mood. Shown in the tap-to-talk
+      speech bubble. *(first pass from text descriptions — refine to true likeness when
+      the owner sends photos; can also surface on the select cards / goal card)*
 - [ ] **Notifications** (if ever packaged as an app): the real appointment hook.
 
 **P3 — collection meta**
