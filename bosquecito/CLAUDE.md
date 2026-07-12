@@ -40,7 +40,12 @@ Deployed by dragging the file into Vercel.
   `_oxVel` (charOX velocity) is non-trivial, flipped by `walkDir`. `CHAR_HURT` is
   the recolored 2-frame hurt sheet — frame 1 (hunched recoil) shows when a person
   is P.sick or dizzy; frame 0 is the RPG red-flash, unused. All new motion is
-  reduce-motion gated. `drawAnimFrame(a,
+  reduce-motion gated.
+- Cosmetics: `OUTFITS[cur]` lists unlockable garment colours (swatch hex + cariño
+  level). Palette-swapped sheets are embedded as `pa_<who>[_walk|_hurt]__<colour>`;
+  `resolveSheet(s)` in drawAnimFrame swaps to `s+'__'+P.outfit` when it exists, so
+  the outfit shows everywhere the character animates. Picker lives in the Cosas
+  panel (renderStuff → swatchEl/wearOutfit); choice saved in `P.outfit`. `drawAnimFrame(a,
   cx, groundY, opts)` draws the current frame (opts.h overrides height; opts.frame
   forces one; opts.flip mirrors). The main draw + fruit/run minigames branch on
   CHAR_ANIM: animated chars draw a villager frame, others draw the grid. `pw/ph`

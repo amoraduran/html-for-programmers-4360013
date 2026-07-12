@@ -148,8 +148,10 @@ Ranked by impact on *"why would someone play and come back?"*
       a small "come back tomorrow" nudge. *(next)*
 
 **P2 — depth & aspiration (near future)**
-- [ ] **Cosmetics**: unlockable dress/shirt colours, hats — that actually render
-      (recolor the walk/idle sheets by palette swap; UI in "Cosas").
+- [x] **Cosmetics — outfit colours**: unlockable shirt/dress/top colours per person
+      (palette-swapped idle/walk/hurt sheets → `pa_*__<colour>`, resolveSheet applies
+      them everywhere, swatch picker in Cosas gated by cariño level). *(done)*
+      Still open: hats/accessory variety, dog-collar colours.
 - [ ] **Meaningful unlock gating**: reach-for-it games/food/interactions by level.
 - [ ] **Expressions** (needs face art from the owner — parked).
 - [ ] **Notifications** (if ever packaged as an app): the real appointment hook.
