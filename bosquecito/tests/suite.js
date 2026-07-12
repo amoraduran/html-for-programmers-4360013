@@ -175,7 +175,7 @@ step("missions troncos", ()=> {
   w.missionProg('troncos', 8);
   if(!D().G.mis.done.troncos) throw 0;
 });
-step("logros rows", ()=> { w.renderLogros(); if(w.document.querySelectorAll('.logroRow').length !== 18) throw 0; });
+step("logros rows", ()=> { w.renderLogros(); if(w.document.querySelectorAll('.logroRow').length !== 19) throw 0; });
 step("persist", ()=> { w.saveAll(); if(!D().LS.get('bosquecito_gaia')) throw 0; });
 step("60 frames stable", ()=> { for(let i=0;i<60;i++) w.draw(); });
 

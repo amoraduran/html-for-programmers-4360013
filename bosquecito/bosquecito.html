@@ -217,9 +217,11 @@
   #dailyBody{font-size:6px;color:#7a6a72;line-height:1.9;margin-bottom:11px}
   #dailyBody b{color:var(--plum)}
   #dailyCard .pxbtn{font-size:9px}
-  #streakBadge{font-size:6px;color:var(--gold);background:rgba(22,38,29,.5);
+  #streakBadge, #familyBadge{font-size:6px;color:var(--gold);background:rgba(22,38,29,.5);
     border:2px solid var(--plum);border-radius:9px;padding:5px 9px;line-height:1.5;display:none}
-  #streakBadge.show{display:inline-block}
+  #streakBadge.show, #familyBadge.show{display:inline-block}
+  #familyBadge.done{color:#ffd0e4;border-color:#e2607a}
+  #familyBadge .fbar{display:inline-block;letter-spacing:1px}
   #resOverlay{
     position:absolute;inset:0;background:rgba(22,38,29,.72);display:none;
     align-items:center;justify-content:center;z-index:29;cursor:pointer;
@@ -279,6 +281,7 @@
   .itemRow .it b{color:var(--gold);font-size:7px}
   .itemRow .pxbtn{padding:8px 9px;font-size:6px}
   .lockNote{font-size:5px;color:var(--blush)}
+  .itemRow.locked{opacity:.5}
   .stuffHdr{font-size:7px;color:var(--gold);margin:12px 2px 5px;width:100%;text-align:left}
   .outfitRow{display:flex;gap:9px;flex-wrap:wrap;padding:2px 2px 4px;width:100%}
   .swatch{width:30px;height:30px;border-radius:50%;border:3px solid var(--plum);cursor:pointer;
@@ -357,6 +360,7 @@
   <div class="screen" id="s-select">
     <h2>¿A quién vas a cuidar hoy?</h2>
     <div id="streakBadge"></div>
+    <div id="familyBadge"></div>
     <div id="charGrid"></div>
   </div>
 
@@ -458,14 +462,8 @@
     <div class="grabber"></div>
     <button class="sheetClose" onclick="closePanels()">✖</button>
     <h2>🎮 Juegos</h2>
-    <div class="itemRow"><span class="ie">🤔</span><div class="it"><b>¿Pa' dónde va?</b><br>adiviná pa' qué lado corre · 5 rondas</div><button class="pxbtn pink" onclick="startGuess()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">🍎</span><div class="it"><b>Frutillas del bosque</b><br>arrastrá y atrapá · combos 🔥 · 30 seg</div><button class="pxbtn pink" onclick="startFruit()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">🪵</span><div class="it"><b>Saltá troncos</b><br>tocá para saltar · no chocés · 40 seg</div><button class="pxbtn pink" onclick="startRun()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">🌼</span><div class="it"><b>Lucecitas del bosque</b><br>mirá el orden y repetilo · memoria 🌼</div><button class="pxbtn pink" onclick="startMemo()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">✨</span><div class="it"><b>Atrapá luciérnagas</b><br>tocalas antes de que se escondan · 30 seg</div><button class="pxbtn pink" onclick="startBugs()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">🎵</span><div class="it"><b>Ritmo del bosque</b><br>tocá cuando la nota llegue a la línea · 30 seg</div><button class="pxbtn pink" onclick="startBeat()">Jugar</button></div>
-    <div class="itemRow"><span class="ie">🎣</span><div class="it"><b>Pescá en el río</b><br>esperá que pique y tocá rapidito · 45 seg</div><button class="pxbtn pink" onclick="startFish()">Jugar</button></div>
-    <p class="lockNote">jugar sube la alegría y baja el peso 🎉</p>
+    <div id="gamesList"></div>
+    <p class="lockNote">jugar sube la alegría y baja el peso 🎉 · más juegos con más cariño</p>
   </div></div>
 
   <div class="sheet" id="p-shop"><div class="sheetCard">
@@ -1195,7 +1193,8 @@ const LOGROS = [
   {id:'ritmico', e:'🎵', n:'Con ritmo',          d:'hacé combo de 10 en el Ritmo'},
   {id:'pescador',e:'🎣', n:'Buen pescador',      d:'pescá 8 pececitos en una partida'},
   {id:'racha3',  e:'📅', n:'Tres días seguidos', d:'volvé 3 días seguidos'},
-  {id:'racha7',  e:'🌟', n:'Una semana entera',  d:'volvé 7 días seguidos'}
+  {id:'racha7',  e:'🌟', n:'Una semana entera',  d:'volvé 7 días seguidos'},
+  {id:'unidos',  e:'💞', n:'Familia unida',      d:'nivel 5 o más con los 6 · +20% monedas'}
 ];
 
 /* tasas de desgaste por hora (se multiplican por la personalidad) */
@@ -1227,7 +1226,7 @@ function freshGlobal(){
     v:2,
     coins:15, inv:{manzana:3, confite:1, medicina:1}, pelota:false,
     logros:{}, cnt:{comidas:0, banos:0, juegos:0},
-    streak:0, lastDay:'', muted:false
+    streak:0, lastDay:'', muted:false, prestige:false
   };
 }
 function saveAll(){
@@ -1257,6 +1256,7 @@ function openPanel(id){
   if(id==='p-food') renderFood();
   if(id==='p-shop') renderShop();
   if(id==='p-stuff') renderStuff();
+  if(id==='p-games') renderGames();
   if(id==='p-meter') renderMeter();
   if(id==='p-logros') renderLogros();
   $(id).classList.add('open');
@@ -1303,6 +1303,14 @@ function buildSelect(){
   const sb = $('streakBadge');
   if(G && G.streak > 1){ sb.innerHTML = '🔥 racha de '+G.streak+' días · seguí viniendo 🌷'; sb.classList.add('show'); }
   else sb.classList.remove('show');
+  /* meta larga: unir a toda la familia (nivel 5+). se ve el progreso. */
+  const fb = $('familyBadge'), bonded = familyBond(5), tot = ORDER.length;
+  if(G && G.prestige){
+    fb.innerHTML = '💞 ¡Familia unida! · +20% 🪙 para siempre'; fb.className = 'show done';
+  } else if(bonded > 0){
+    fb.innerHTML = '💞 Familia: <span class="fbar">'+'●'.repeat(bonded)+'○'.repeat(tot-bonded)+'</span> '+bonded+'/'+tot+' unida';
+    fb.className = 'show';
+  } else fb.className = '';
   const g = $('charGrid');
   g.innerHTML = '';
   ORDER.forEach(k=>{
@@ -1475,13 +1483,30 @@ function addXP(n){
   }
   refreshTop();
 }
-function checkFamilia(){
-  let ok = true;
+/* cuántos de la familia llegaron a cierto nivel de cariño (para la meta larga). */
+function familyBond(thresh){
+  let n = 0;
   ORDER.forEach(k=>{
     const s = (k===cur) ? P : LS.get('bosquecito_'+k);
-    if(!s || petLevel(s) < 2) ok = false;
+    if(s && petLevel(s) >= (thresh||5)) n++;
   });
-  if(ok) unlockLogro('familia');
+  return n;
+}
+function checkFamilia(){
+  if(familyBond(2) >= ORDER.length) unlockLogro('familia');
+  /* PRESTIGIO: toda la familia a nivel 5 → "Familia unida" + 20% monedas para
+     siempre (la meta larga que le da sentido a seguir). */
+  if(!G.prestige && familyBond(5) >= ORDER.length){
+    G.prestige = true;
+    unlockLogro('unidos');
+    saveAll();
+    $('lvlBig').textContent = '💞';
+    $('lvlTitle').textContent = '¡FAMILIA UNIDA!';
+    $('lvlSub').textContent = 'toda la familia te quiere · +20% 🪙 para siempre';
+    $('lvlOverlay').classList.add('show');
+    setTimeout(()=>$('lvlOverlay').classList.remove('show'), 2800);
+    burst(170, 90, 30); sfx('win'); vib([25,50,25,50,60]);
+  }
 }
 
 /* ============ METAS DEL DÍA ============ */
@@ -1748,6 +1773,29 @@ function wear(k){
   saveAll(); renderStuff();
   sfx('sel');
 }
+/* Juegos: los básicos desde el principio, el resto se abren con el cariño
+   (algo para "alcanzar" · progresión). */
+const GAMES = [
+  {e:'🤔', n:"¿Pa' dónde va?",        d:"adiviná pa' qué lado corre · 5 rondas",           fn:'startGuess', lvl:1},
+  {e:'🍎', n:'Frutillas del bosque',   d:'arrastrá y atrapá · combos 🔥 · 30 seg',          fn:'startFruit', lvl:1},
+  {e:'🪵', n:'Saltá troncos',          d:'tocá para saltar · no chocés · 40 seg',           fn:'startRun',   lvl:1},
+  {e:'🌼', n:'Lucecitas del bosque',   d:'mirá el orden y repetilo · memoria',              fn:'startMemo',  lvl:2},
+  {e:'✨', n:'Atrapá luciérnagas',     d:'tocalas antes de que se escondan · 30 seg',       fn:'startBugs',  lvl:3},
+  {e:'🎵', n:'Ritmo del bosque',       d:'tocá cuando la nota llegue a la línea · 30 seg',  fn:'startBeat',  lvl:4},
+  {e:'🎣', n:'Pescá en el río',        d:'esperá que pique y tocá rapidito · 45 seg',       fn:'startFish',  lvl:5}
+];
+function renderGames(){
+  const box = $('gamesList'); box.innerHTML = '';
+  const lv = petLevel(P);
+  GAMES.forEach(g=>{
+    const locked = lv < g.lvl;
+    const row = document.createElement('div'); row.className = 'itemRow' + (locked?' locked':'');
+    const btn = locked ? '<span class="lockNote">🔒 cariño nivel '+g.lvl+'</span>'
+                       : '<button class="pxbtn pink" onclick="'+g.fn+'()">Jugar</button>';
+    row.innerHTML = '<span class="ie">'+g.e+'</span><div class="it"><b>'+g.n+'</b><br>'+g.d+'</div>'+btn;
+    box.appendChild(row);
+  });
+}
 
 /* ============ ESTADO ============ */
 function renderMeter(){
@@ -1940,6 +1988,7 @@ function floatText(x, y, txt, col){
   particles.push({x, y, vx:0, vy:-0.8, t:0, life:55, txt, col: col||'#ffdf8e'});
 }
 function addCoins(n){
+  if(n > 0 && G.prestige) n = Math.round(n * 1.2);   /* perk de familia unida */
   G.coins += n;
   if(n>0){
     const c=$('tbCoins'); c.classList.remove('pop'); void c.offsetWidth; c.classList.add('pop');
