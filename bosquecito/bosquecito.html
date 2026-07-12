@@ -1712,7 +1712,7 @@ function draw(){
   }
   /* pajarito animado que cruza el cielo (de día) */
   birdTimer--;
-  if(birdTimer<=0 && !bird && !sky.night){
+  if(birdTimer<=0 && !bird && !sky.night && !reduceMotion){
     const dir = Math.sin(frame)>=0 ? 1 : -1;   /* varía sin Math.random */
     bird = {x: dir>0?-20:W+20, y: 26+((frame*7)%46), v: (0.8+((frame%5)*0.12))*dir, dir};
     birdTimer = 900 + (frame%1200);
