@@ -29,7 +29,12 @@ Deployed by dragging the file into Vercel.
   and offline canvas rely on them.
 - Frame animation: `CHAR_ANIM[key]` = {sheet, fw, fh, frames, fps, disp}; the
   people (andres, angelica) use recolored FreeVillager idle sheets, dogs + kids
-  (aurora toddler, leila baby) keep their drawn char-grids. `drawAnimFrame(a,
+  (aurora toddler, leila baby) keep their drawn char-grids. `CHAR_WALK[key]` =
+  the 6-frame FreeVillager WALK cycle, recolored to the family by the same
+  idle→family colour map (see scratchpad/walk_recolor.py — skip transparent
+  source pixels or the bg fills with the outline colour). Used by Saltá troncos
+  (frame advances with run.scroll; a leap frame mid-air) and Frutillas (walks
+  facing its move direction, idle when still). Dogs' CHAR_ANIM already IS a walk. `drawAnimFrame(a,
   cx, groundY, opts)` draws the current frame (opts.h overrides height; opts.frame
   forces one; opts.flip mirrors). The main draw + fruit/run minigames branch on
   CHAR_ANIM: animated chars draw a villager frame, others draw the grid. `pw/ph`
