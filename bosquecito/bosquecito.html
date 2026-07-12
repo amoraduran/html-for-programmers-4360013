@@ -233,6 +233,7 @@
     border:3px solid var(--plum);border-radius:10px;padding:8px;
   }
   .itemRow .ie{font-size:16px}
+  .pxicon{width:26px;height:26px;image-rendering:pixelated;object-fit:contain;vertical-align:middle;flex-shrink:0}
   .itemRow .it{flex:1;text-align:left;font-size:6px;line-height:1.7}
   .itemRow .it b{color:var(--gold);font-size:7px}
   .itemRow .pxbtn{padding:8px 9px;font-size:6px}
@@ -447,6 +448,31 @@ const LS = {
   get(k){ try{ const v = localStorage.getItem(k); return v!==null ? JSON.parse(v) : (MEM[k] ?? null); }catch(e){ return MEM[k] ?? null; } },
   set(k,v){ MEM[k]=v; try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 };
+
+/* ============ PIXEL ART (sprites embebidos, sin archivos externos) ============ */
+const SPR_DATA = {
+  manzana:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABtUlEQVR42qWTz0obURTGf3dmzEQsOFq0Y1BEQirFv7WkZjcvUAouRGgXFbqRbF0I2RS6EPoCwY0PEFy46Qu4EwWhsRAwhBIaqqE0jaCtc5NxutC5TjBJC72byz3nfN/5zp8L/3AeRRI+/3s6kRh/C67KouhGLNqBXy5+5WFMx3mlsbpsdyXSwtnC4MS8YHXZ5kWqrHztytCqsigCZxiceTdCZmyYj/vj5Hp+UX6W4Gxt6V4vRKfa09EmjifZ0yNkrwzS0SYbU08wk9PYW7uqJBEGp6NN4p5LSTdxPInz9jUkp9hby5CancNMr+Bmc9TyBZ42DKqyKFqmYA3FKH3/huNJUrNznG7vMHj4GWdrk/riJLx5Ty1f4ASpBqiFCfrtUQAq+OznPwFQyxdwszl6b8GBv+se3AVJHhNRwBMkFXxKugkNWhVUZVFsHB4xPvP8JuCW5EYu6gbIXhmqiR0VlHSTuOcqJYHscPaOm/ghuUD5+EDZ4p7LKIIKPuuNvpat1NplPz+rYA3FlNwf9sRd7d3+gmk8sHr03ok+3zoKbPXr0wFLG/kZvC9FfaHh/f7iNi/qAH8AeY200tncXiQAAAAASUVORK5CYII=',
+  confite:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB2UlEQVR42sWTz2vTYBjHP4lNaCjGZKWzIWM/sNIdPCiLOHGyo7CLIN5WLx78B3YZeNlxVy/+AxPxoAcRBA8TylaREYSVHQobuMliuhRtjJSUbM08jETtKgge/B4f3s+H533f54F/jDCoeF6+eDyofhBtnzqfGQSuLxYxDIXcWAGAzl4L1w2ZWea4XyT8Cr++l0U1NQLHZ7fR4c7D63x4UceuNrFmi6imBsDMcjOViAn8+GqPsmUAULaMFH707DM1N0Y1NUrTo7x92mB9sZh2KySwOaaQLw3xZecrmxse8wtXANhac7hWuZxeA+Cj3SJvSMytdH++QeD3kByfzQ2Pmhtj2S52tUnNjbl0s8W7V594Um1RmS2QNyR2Gx3gzInAi7OYmoBqaswvGFi2S9kyUE2NB9Oj7Lw/gW8YIhNWgcDx8eIscIggi4qmZ0baS1MSw2KX8ckcqqlRX3W4VSmxtebg7IXpFQPHp+nF3H8T0T7a1wWAfsnZczJ5Q+IwjAn8HhNWgfqqw/hk7jc4ikM//cZEArA0JXFBjwH4/i0iO6RQHBaZW+mmM3NKkEgAElF/2kf7up4Zab+8K3P7ecRBtC0MHOVE1J8oDv2k06SDv1oYWVS0P+3H/88PRrjP1RHMcXIAAAAASUVORK5CYII=',
+  pinto:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB8ElEQVR42q2Tz24SURTGfwMjsCBwR4qD0xRiyixsApvW1KBl2xijJurClTFx0UfwKfoALhpfQGr8ExMTV42SGIlpSpUYXLSYjh0IMtQuKAGui3GolJp24bc6i/v97nfOuVfhj/SAKb3a7lYVTinFM6+ke4hYE4A7H/RTgxTPrJ1rMpEQKApEkgbtbYv8avBEkKIHTFmYt4lPCarrfgBErEk6NwPAXs1ioRD8J0T1iuq6n0u3dOQAtPgkH59vEJ8URFMGa7ct8qumPA7iAvxgZvuImJ/AlSwAswmDdrmGjKiICwZrdy3yT8chSlANC+E73yrkbOKGQKQMopkkcnB4yLdr8bMr+VX+PtbOsAWnHgOaRKcMWls7aGfg7RNrOJPpaxkiyfEkCoCXYiXdw8z2iaYMSi9t5m7oaHEVKSWlF2VmlxZxatZIkmGUo5DGjsPczQzBq+5Muu/LtBo99KVFd7WP35Ba3tRGBnJcEhn1czagMEgYhHIXAegUK25rD15rvr8BB719xxn80B5+U6lu+GlvWyjtPlulmmu263SKFULTMfY+1w6f8lENNzNv4zRjXH91n07xC6HcDNQb2M8+kVre1A56+47vOICXxPsT7q0TdIqVEfOJPy2ohoUeMOW7hYjcfXRZfr2XlEE1LPif+g3Bqt7WGdoeYAAAAABJRU5ErkJggg==',
+  queque:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABy0lEQVR42q2TwWoTURSGv0nGjOlk4rQlThKUUmFmlYK0WxeCBDe+RCniwo1LV0VduXSTlS/QBxC6EBcaMZu2ixKKONXQWtKJIe3ATCYkbXpdJJNxNIJQD1zu5Vy+/5xz+S9cMqS/5MW/MtI08MfrFXKFTOyifexz/eH2H9zkYKRM8fapRP6mxs7HFsWFmZhA8yBg+Y6B892j/FLQGtjSRCCEmwcBAPcfHcEtM6K/2fQO4cPmDQCKCzORiJEyxe66JSrlogg2EOIzQgxL0R4uxxTiEyLYQFTKRbG7bgkjZQo5LLK61iR914ScMkqYJWj3oy5yCmCSxmZ1rcn+ngWADFCt+YDF0u0vgBkBoRiMxMaj7O9ZY0YlcVkfJLvDk+fbR/lni8kuV90CCSeLatTh4hqoclTdtWlvrXD4VaNa83nxXqU1sCVZkTM6QKfjUa3BXL3LPab5IMu7TYcTT9DpeICKImd0SZEz+pVkelEV+s7jksP8vMacJjGrxT126okJXKnn6Uru8tmw15D7574LNEjoMTirp36bdjDeNQDOhr1G/9x3J2UUOaPricIpwKsHwdQOnrwZudO9OJ4dF47/hV/HmfbiYdsh/F/iJ/aBzwaHWhROAAAAAElFTkSuQmCC',
+  medicina:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAA0klEQVR42mNkgAIvL6//MPa2bdsYGdAALnkWGCMyMpIBSQG6fpzycAPY/79nwAdU7WyxijPBnLdgxQ6GBSt2YDgXxm/KzGJoyszCkIe7YNmyZQwMDAwMuzYtwmoTTP7Gxw+YLqAEwF2Ay2YYQLd58AB4gli8eDE8ZGNjYzESEi55eBgsX74cr0245OEmbT1wC26Dt4MahgvunX8Kl1cylGbESOcwvPXArf/YEhIM3zv/9D/ehHT0wiu8Cend/a/YE1JUVBRDVFQUzjDAJc9IaXYGAEWsa7C4X5lrAAAAAElFTkSuQmCC',
+  pelota:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAW0lEQVR42mNkwAKsixb8xyZ+tC+BEV2MiYFCADfRImMChq3MXAI4NcJcQ7ELKPcCNqcT4wWquQCvAX+/fWD4++3DALqAPrGALyHhi41BlJCwCeLyzokZBdTPjQCnnxgujbOlKgAAAABJRU5ErkJggg==',
+  strawberry:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAB8klEQVR42qWTP2hTQRzHP+/l9ZX+ITlry0sgg4W+1/DsoNYgXTK3FCtZglsWB+3iLnR0cOoiIm4BJx20SjenUBBsK9hKSF8CFTWSaEmeogTbNOeQXmpI4uJv+R139/3e9/u9O40+ZZm2VOPKYUHrt8/oB55bKlL6cDKxY8vKYUFTpH8Tav9SEJ8vthR8gY87UyRvlSiX6rx+MdUmMfrJVkBogePzRcolOsAdCizTlvcaOrO6QTQUZK1WJRtorX1d8LiSiHD/zgg9LSjwtTNjCCvMprdH3Jlm09sD4BEN3l0osHQ9QmIhRurip85gLdOWu8Z5Kd2krJ2dk3Jltd3lyqp8Y7jyhuFIy7Rl/LImb94elsquYZm2fNU0iYaC+JUyYjGB/+AJ4tsz/IkkAHFnmlw+x0u9FVG5VG8frvOfZQBEQ0EAhBXGX88illP4E0nEcgqAzN2HuHqAq03JwbnOm9CUhRnHObWwnkUsJsg8fg7ArG6w3WywFRY8Pah2BKgrBe8971TBSU/HXNIxl+1mgw1dMhwZ723h8/cfbZIZxyGTz5GOuWTyOQC2woKxyDiZXa/rX3S9g7Vatd03TlJX6ff6VNqgMSoGAkOTI1K87Zf0L82/dHRc3//d+Ol3EajBoDEqAAYCQ5MAR8f1fbXWC6jqD90E4rwkhohgAAAAAElFTkSuQmCC',
+  cherry:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABV0lEQVR42qWSv0tCcRTFP++pr8IICelJjwSNF6ZhEBRkizSFQ6M0ZZMEbe1tDU0NbdFUf0GTYzpJCAUNgREpPDBMGgT7qdlrUVOfqeSZLvdyzveee74CNciSqtOEp/K9QB8Q6+T9rVkWp8qE/SXC/pJBsCdkSdVPouu6LKm6LKn6cWhM/5dIc32+01tE7ObbMc1gkCVVvzzsvoU44BuYe90i/9Daa7cpdiIflr9JBYJEym/cXYxz5nCSPzogFQga4hU6kZ+pMDOh4PXO4dxYg+gK2uoe6UwGj9vNUjLR2KSjBTsW4gWNeEGDRAy2QcEEgMft7n5Eq+IDfgl15KgCkM5kuh9xeNJVY9wayH19pMhNDK9/Gaviw46lMVMw4XGqbOa1liSEv2I8nQ/x8ZglmbtCwYQdC7uSaIjRIDBkHrVZTCMuq267bp+9CsWFSvU9+/n1Uqz3fgCa3HvFdm/08AAAAABJRU5ErkJggg==',
+  peach:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABpUlEQVR42qWT3WoTQRiGn+zObkhtQiADm8SfKs3qCuoNiPQoeFyIiBfnBYgXoFJPRCgIIlILBpNQK5JOIAfBTamb2R8PNl2TdIMFv6NZvnmf752ZdyGnHNtNHNtN+N+6DKRwWfFo1svda6yzrzqSwc0yAOpede2xjFXx20cPUR0JbcXPmUwbO6A6MgPlAhzbTV4/28UaDDn9GMBenTvPTdT3XXgwBicET1yAiFVLervJEU2s/SHsRzT891S2JHgCunMIVQqfFhw4tpt8K0tK7z4vwRq+j1kLOJ1GqXgHtB+jrxqZi8xBZSuEY5+TwZBr9hhsoJb2rmya4Al0P8YqGynswhE8QYUQczrOBOnlhFD7jf6wgdWK0X2w8nJw/nS0Fdzw4O59+PoFfnRhr472/06vH06yXCxfYlvB4yfp+s1LOJAwmovn02fTaH0SHdtN1KtWOvVAwkig/Ri1sc31Xo9fx4Lb/ngplYV1EVYdCd2QYaNF86RP/XCSG+mlj6LYrFpm6ZYwim4xKr1Y7AXm2dMwDno6OjsKwunknz/TOQxgVbRYfwCjkLSkH2vSpgAAAABJRU5ErkJggg==',
+  pina:'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABg0lEQVR42pWSz0oCURTGv5m8E5JJTJabNlFBTU1E0D9aVS7mGQRpNYsi8A2E8AGiaFVgkNGmFzB05SKjoEWREROFKLgZKsoacqZOC1FkdGj6Nod7Lud3vnPuBWwKCiMEAEyUqH625xzFxDFKJxgFhRFaX67FdIJRPMyIiRI9XnjJBUSiw3hrcTpRi3YAbweIFROFO2B2VMPQhAflMhBTNJSKtXvzOc/hLzFRorUl1uh6sMkcrfPtlhhTNHAccJ4BlIE8SvfAXlRrLLhZnJMDAFCnNBR1E6mS5N5+s5PsYj/lV/uoXWfHEerFJzNvWIgwFACUtj7hBOEdi8MeZM6rUHa6cWeYjpC2DgLDP8gdW1A2ArjZr0BWfchcVt2PoD/wWIh4cLqrQ17pRSr6jtC84B4wOW4gl7QQmhOQ2tYRmhGQS1ruAde3XsiSgbMjC/PsC7ljC7Jk4J9PGKQX1U/ZxX56Uf2OT9nyMTo9vh7W4R3sop6r5vwH9zptfhtPX1bltTn/Cwbvq4xdw2upAAAAAElFTkSuQmCC'
+};
+
+/* Carga los sprites embebidos como imágenes (una sola vez, sin red). */
+const SPR_IMG = {};
+for(const k in SPR_DATA){ const im = new Image(); im.src = SPR_DATA[k]; SPR_IMG[k] = im; }
+/* Dibuja un sprite centrado en (cx,cy) a tamaño d (pixel-perfect). */
+function drawSpr(name, cx, cy, d){
+  const im = SPR_IMG[name];
+  if(!im || !im.complete || !im.naturalWidth) return false;
+  try{ ctx.drawImage(im, Math.round(cx-d/2), Math.round(cy-d/2), d, d); return true; }
+  catch(e){ return false; }
+}
 
 /* ============ MOTOR DE SPRITES (del Bosque Encantado) ============ */
 const PAL = {
@@ -1075,6 +1101,10 @@ function renderLogros(){
 }
 
 /* ============ COMER ============ */
+/* ícono de un ítem: sprite pixel-art si existe, si no el emoji de respaldo */
+function iconFor(k, e){
+  return SPR_DATA[k] ? '<img class="pxicon" src="'+SPR_DATA[k]+'" alt="">' : '<span class="ie">'+e+'</span>';
+}
 function renderFood(){
   const box = $('foodList');
   box.innerHTML = '';
@@ -1090,7 +1120,7 @@ function renderFood(){
     const btn = (f.tipo==='medicina')
       ? '<button class="pxbtn gold" onclick="cure()">Usar</button>'
       : '<button class="pxbtn pink" onclick="feed(\''+k+'\')">Dar</button>';
-    row.innerHTML = '<span class="ie">'+f.e+'</span><div class="it"><b>'+f.n+'</b> ×'+n+'<br>'+f.d+'</div>'+btn;
+    row.innerHTML = iconFor(k, f.e)+'<div class="it"><b>'+f.n+'</b> ×'+n+'<br>'+f.d+'</div>'+btn;
     box.appendChild(row);
   });
   if(!any) box.innerHTML = '<p style="font-size:6px;line-height:2">La alacena está vacía 🕸️<br>pasá por la tienda 🛍️</p>';
@@ -1114,7 +1144,7 @@ function applyFood(k){
   P.ale = Math.min(100, P.ale + (f.ale||0));
   P.peso += f.peso||0;
   G.cnt.comidas++;
-  eatFx(f.e);
+  eatFx(k, f.e);
   const rc = REACT[k];
   if(rc){
     setTimeout(()=>{ speech(rc.say); burst(W/2, H-130, 5, rc.fx); if(rc.hyper) hyper = 90; }, 700);
@@ -1201,7 +1231,7 @@ function renderShop(){
     if(owned) btn = '<span class="lockNote">ya es de ustedes ⚽</span>';
     else if(locked) btn = '<span class="lockNote">🔒 cariño nivel '+f.lvl+'</span>';
     else btn = '<button class="pxbtn gold" onclick="buy(\''+k+'\')">🪙 '+f.precio+'</button>';
-    row.innerHTML = '<span class="ie">'+f.e+'</span><div class="it"><b>'+f.n+'</b><br>'+f.d+'</div>'+btn;
+    row.innerHTML = iconFor(k, f.e)+'<div class="it"><b>'+f.n+'</b><br>'+f.d+'</div>'+btn;
     box.appendChild(row);
   });
 }
@@ -1230,7 +1260,7 @@ function renderStuff(){
     let btn;
     if(locked) btn = '<span class="lockNote">🔒 cariño nivel '+a.lvl+'</span>';
     else btn = '<button class="pxbtn '+(on?'gold':'pink')+'" onclick="wear(\''+k+'\')">'+(on?'Quitar':'Poner')+'</button>';
-    row.innerHTML = '<span class="ie">'+a.e+'</span><div class="it"><b>'+a.n+'</b></div>'+btn;
+    row.innerHTML = iconFor(k, a.e)+'<div class="it"><b>'+a.n+'</b></div>'+btn;
     box.appendChild(row);
   });
 }
@@ -1722,8 +1752,10 @@ function draw(){
     const ex = W-40 - (W/2-20)*p*(-1)*0; /* vuela desde la derecha al centro */
     const x = W-30 + (W/2 - (W-30))*p;
     const y = 60 + (H-90-60)*p;
-    ctx.font='16px monospace';
-    ctx.fillText(eatAnim.e, x, y);
+    if(!drawSpr(eatAnim.k, x, y-6, 22)){
+      ctx.font='16px monospace';
+      ctx.fillText(eatAnim.e, x, y);
+    }
     if(eatAnim.t>34){
       eatAnim=null;
       burst(W/2, H-90, 6, '💛');
@@ -1758,8 +1790,10 @@ function draw(){
       }
     }
     if(dropFood){
-      ctx.font = '20px monospace';
-      ctx.fillText(dropFood.e, dropFood.x-10, dropFood.y+7);
+      if(!drawSpr(dropFood.k, dropFood.x, dropFood.y, 26)){
+        ctx.font = '20px monospace';
+        ctx.fillText(dropFood.e, dropFood.x-10, dropFood.y+7);
+      }
     }
   }
   /* burbujas del baño (reventalas) */
@@ -1828,7 +1862,7 @@ function burst(x,y,n,e){
     particles.push({x, y, vx:(Math.random()-0.5)*3, vy:-1-Math.random()*2, t:0, life:40+Math.random()*20, e: e|| (Math.random()<0.5?'✨':'💛')});
   }
 }
-function eatFx(e){ eatAnim = {e, t:0}; }
+function eatFx(k, e){ eatAnim = {k, e, t:0}; }
 function bathFx(){
   bathAnim = 90;
   bathBubbles = [];
@@ -2137,9 +2171,12 @@ function drawFruit(){
     fruit.spawn = (26 + Math.random()*20) / ramp;
     const roll = Math.random();
     let it;
-    if(roll < 0.10)      it = {x:24+Math.random()*(W-48), y:-10, v:(1.7+Math.random()*1.2)*ramp, e:'🌟', gold:true};
-    else if(roll < 0.24) it = {x:24+Math.random()*(W-48), y:-10, v:(1.9+Math.random()*1.3)*ramp, e:'🍍', bad:true};
-    else                 it = {x:24+Math.random()*(W-48), y:-10, v:(1.6+Math.random()*1.4)*ramp, e:['🍎','🍓','🍌','🍇'][Math.floor(Math.random()*4)]};
+    if(roll < 0.10)      it = {x:24+Math.random()*(W-48), y:-10, v:(1.7+Math.random()*1.2)*ramp, e:'🌟', spr:'gold', gold:true};
+    else if(roll < 0.24) it = {x:24+Math.random()*(W-48), y:-10, v:(1.9+Math.random()*1.3)*ramp, e:'🍍', spr:'pina', bad:true};
+    else{
+      const pool = [['🍎','manzana'],['🍓','strawberry'],['🍒','cherry'],['🍑','peach']][Math.floor(Math.random()*4)];
+      it = {x:24+Math.random()*(W-48), y:-10, v:(1.6+Math.random()*1.4)*ramp, e:pool[0], spr:pool[1]};
+    }
     fruit.items.push(it);
   }
   const rows = SPRITES[cur].rows;
@@ -2153,7 +2190,7 @@ function drawFruit(){
   ctx.font = '15px monospace';
   fruit.items = fruit.items.filter(it=>{
     it.y += it.v;
-    ctx.fillText(it.e, it.x, it.y);
+    if(!drawSpr(it.spr, it.x+4, it.y-4, 22)){ ctx.fillText(it.e, it.x, it.y); }
     if(it.y > H-30 && Math.abs(it.x - fruit.px) < 27){
       if(it.bad){
         fruit.combo = 0;

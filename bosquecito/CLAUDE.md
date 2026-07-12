@@ -16,9 +16,17 @@ Deployed by dragging the file into Vercel.
   tickle/scrub/drag-food), 3 minigames (guess, fruit, run), panels, UX shell.
 - Persistence: localStorage behind the `LS` try/catch wrapper (memory fallback).
   Keys: `bosquecito_<char>` and `bosquecito_g`. Never call localStorage directly.
-- Sprites are char-grids (strings of palette letters). All rows in a sprite MUST
-  be equal width. Palette letters live in PAL. EYES = [colL, colR, row, extraW?]
-  for blink; FOOT = empty rows at sprite bottom (ground alignment).
+- Character sprites are char-grids (strings of palette letters). All rows in a
+  sprite MUST be equal width. Palette letters live in PAL. EYES = [colL, colR,
+  row, extraW?] for blink; FOOT = empty rows at sprite bottom (ground alignment).
+- Pixel-art item sprites (food, fruit, items) are embedded as base64 data URIs
+  in `SPR_DATA` (still one file, no external fetch). `SPR_IMG` holds the loaded
+  Images; `drawSpr(name, cx, cy, d)` draws one centered on canvas and returns
+  false if unavailable (callers fall back to the emoji). `iconFor(k, emoji)`
+  returns the sprite `<img class="pxicon">` for HTML lists, emoji fallback
+  otherwise. SPR_DATA keys for foods match the FOODS ids (manzana, confite,
+  pinto, queque, medicina, pelota). Keep the emoji fallbacks intact — the suite
+  and offline canvas rely on them.
 
 ## Hard rules (do not violate)
 
