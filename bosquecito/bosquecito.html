@@ -1713,10 +1713,20 @@ function draw(){
       const q = squash/8;
       sclY = 1 - 0.14*q; sclX = 1 + 0.12*q;
     }
+    /* respiración: sube y baja suavecito · más lento y hondo dormido */
+    const breath = P.sleeping ? Math.sin(frame/40)*0.035 : Math.sin(frame/26)*0.02;
+    sclY *= (1 + breath); sclX *= (1 - breath*0.5);
+    /* colita feliz: se menea cuando está contento o acelerado (o mientras lo acarician) */
+    let wag = 0;
+    const awakeIdle = !P.sleeping && !heldChar && !gameMode && !airborne && dizzy<=0;
+    if(awakeIdle){
+      const excited = hyper>0 || petting || low>70;
+      wag = Math.sin(frame/(excited?6:11)) * (excited?0.05:0.02);
+    }
     const baseY = py + sprH*size;
     ctx.save();
     ctx.translate(W/2 + gx, baseY);
-    if(rock) ctx.rotate(rock);
+    if(rock || wag) ctx.rotate(rock + wag);
     ctx.scale(sclX, sclY);
     drawSprite(ctx, rows, px - (W/2+gx), py - baseY, size, blinking||P.sleeping, EYES[cur]);
     ctx.restore();
