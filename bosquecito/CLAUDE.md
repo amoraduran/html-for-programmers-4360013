@@ -47,6 +47,19 @@ Deployed by dragging the file into Vercel.
 - Accessories (`drawAcc`) anchor to each animated sprite's real head via
   `ACC_ANCHOR[cur]` (villagers sit in the left quarter of their frame, so a
   box-center anchor floats the moño/corona off the head — don't use it).
+- Painted biome stages: `BG_DATA`/`BG_IMG` hold 8 craftpix scenes (340×250,
+  48-col). `BIOME[key]` = {fg1,fg2 (foreground grass colors), lift (px the
+  painting shifts up), amb (light color-grade)}. `BG_JOURNEY[cur]` is the
+  per-character progression (3 biomes by cariño level 1-3/4-6/7-10); `bgKey()`
+  resolves character+level → biome key. `drawSceneBG()` paints the lifted
+  image, then `drawNightSky()` at night (dark mask + stars + moon + animated
+  aurora ribbons, over ANY biome), then `drawFgBand()` — our grass foreground
+  drawn IN FRONT (soft grass edge, contact shadow, tufts) at `FG_TOP` so
+  characters/props stand on real ground, never on painted water/sky. `_grade`/
+  `applyGrade()` washes the whole frame (bg+props+chars) to match the scene's
+  light; it runs in the main scene and every minigame. Everything falls back
+  to the procedural depth scene when an image isn't ready, so the jsdom suite
+  still passes (drawSceneBG returns false without a loaded image).
 
 ## Hard rules (do not violate)
 
