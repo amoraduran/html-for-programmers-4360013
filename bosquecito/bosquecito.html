@@ -44,6 +44,9 @@
   }
   .screen.active{display:flex;animation:fadeScreen .3s ease}
   h1{font-size:15px;color:var(--gold);text-shadow:2px 2px 0 var(--plum);line-height:1.6}
+  #titleScene{width:100%;max-width:320px;border:3px solid var(--plum);border-radius:14px;
+    overflow:hidden;box-shadow:0 4px 0 var(--plum);line-height:0}
+  #titleCv{display:block;width:100%;height:auto;image-rendering:pixelated}
   h2{font-size:9px;color:var(--gold);text-shadow:1px 1px 0 var(--plum)}
   p{font-size:6px;line-height:1.9}
   .pxbtn{
@@ -308,10 +311,10 @@
   <!-- TITULO -->
   <div class="screen active" id="s-title" onclick="go('select')" style="cursor:pointer">
     <h1>BOSQUECITO</h1>
-    <p style="color:var(--blush)">tu familia del bosque 🌷<br>cuidalos todos los días</p>
-    <canvas id="titleCv" width="120" height="60" style="width:240px;height:120px;image-rendering:pixelated"></canvas>
-    <button class="pxbtn pink">Empezar 🌿</button>
-    <p style="font-size:5px;color:var(--blush)">ellos siguen viviendo aunque cerrés el juego 👀</p>
+    <div id="titleScene"><canvas id="titleCv" width="320" height="150"></canvas></div>
+    <p style="color:var(--blush)">Cuidá a tu familia del bosque.<br>Hacelos felices y su mundo va a florecer 🌷</p>
+    <button class="pxbtn pink" style="font-size:10px;padding:13px 22px">Cuidá a la familia 🌿</button>
+    <p style="font-size:5px;color:var(--blush)">siguen viviendo aunque cerrés el juego 👀</p>
   </div>
 
   <!-- SELECT -->
@@ -3390,23 +3393,56 @@ function hideResult(){ $('resOverlay').classList.remove('show'); }
 function doReplay(){ const r = _replay; hideResult(); if(r) r(); }
 
 /* ============ TÍTULO ============ */
+/* Blit un cuadro de un sheet en un contexto cualquiera (para la portada). */
+function titleWalker(c, a, cx, groundY, h, fi, flip){
+  const im = SPR_IMG[a.sheet];
+  if(!im || !im.complete || !im.naturalWidth) return;
+  const w = h * a.fw / a.fh;
+  c.save(); c.translate(cx, groundY); if(flip) c.scale(-1,1);
+  c.drawImage(im, fi*a.fw, 0, a.fw, a.fh, Math.round(-w/2), Math.round(-h), Math.round(w), Math.round(h));
+  c.restore();
+}
+/* Portada viva: un pradito pintado con la familia paseando (ciclos reales),
+   una nubecita y un pajarito. Refleja cómo se ve el juego, no una pantalla vacía. */
 function drawTitle(){
   const cvT = $('titleCv');
   if(!$('s-title').classList.contains('active')) return;
   const c = cvT.getContext('2d');
   c.imageSmoothingEnabled = false;
-  c.clearRect(0,0,120,60);
-  const trio = ['leila','rubble','gaia'];
-  let x = 2;
-  trio.forEach((k,i)=>{
-    const rows = SPRITES[k].rows;
-    const sc = 1.6;
-    const bob = Math.round(Math.sin(frame/12 + i*1.4)*2);
-    c.save(); c.translate(x, 60-rows.length*sc-2+bob);
-    drawSprite(c, rows, 0, 0, sc, (frame+i*40)%160<6, null);
-    c.restore();
-    x += rows[0].length*sc + 6;
+  const TW = cvT.width, TH = cvT.height;
+  const t = reduceMotion ? 0 : frame;
+  /* fondo pintado (pradera); respaldo si aún no cargó */
+  const bg = (typeof BG_IMG!=='undefined') && BG_IMG.meadow;
+  if(bg && bg.complete && bg.naturalWidth){ c.drawImage(bg, 0, -14, TW, TH+22); }
+  else { c.fillStyle='#8fd0c7'; c.fillRect(0,0,TW,TH); c.fillStyle='#5d8d54'; c.fillRect(0,TH-48,TW,48); }
+  /* nubecita que cruza */
+  const clx = ((t*0.25) % (TW+90)) - 45;
+  c.fillStyle = 'rgba(255,246,236,.82)';
+  c.beginPath(); c.arc(clx,24,10,0,7); c.arc(clx+13,27,8,0,7); c.arc(clx-12,28,7,0,7); c.fill();
+  /* pajarito */
+  if(!reduceMotion && SPR_IMG.bird_sheet){
+    const bx = ((t*0.8) % (TW+60)) - 30, by = 20 + Math.sin(bx/22)*5;
+    titleWalker(c, BIRD_ANIM, bx, by+9, 12, Math.floor(t/5)%BIRD_ANIM.frames, false);
+  }
+  /* primer plano de pasto */
+  const gTop = TH-26;
+  c.fillStyle = 'rgba(255,252,242,.16)'; c.fillRect(0,gTop-6,TW,8);
+  c.fillStyle = '#39633a'; c.fillRect(0,gTop,TW,TH-gTop);
+  c.fillStyle = '#53ac8b'; c.fillRect(0,gTop,TW,3);
+  /* la familia paseando (loop continuo, hacia la derecha) */
+  const feet = TH-7;
+  const cast = [['rubble',0,42],['andres',60,50],['angelica',128,48],['aurora',196,36],['gaia',246,38]];
+  cast.forEach(([k,off,h])=>{
+    const x = ((t*0.55 + off) % (TW+96)) - 48;
+    const a = CHAR_WALK[k] || CHAR_ANIM[k];
+    if(!a) return;
+    c.fillStyle = 'rgba(0,0,0,.16)';
+    c.beginPath(); c.ellipse(x, feet+1, h*0.22, 3, 0, 0, 7); c.fill();
+    const wf = t ? Math.floor(t/5) % a.frames : 1;
+    titleWalker(c, a, x, feet, h, wf, false);
   });
+  /* viñeta suave */
+  c.fillStyle = 'rgba(8,12,10,.14)'; c.fillRect(0,0,TW,10);
 }
 
 /* ============ GUARDAR AL SALIR ============ */
