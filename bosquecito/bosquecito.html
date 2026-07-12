@@ -2412,6 +2412,90 @@ function speech(html, ms){
 }
 function hideBubble(){ $('bubble').style.display = 'none'; }
 
+/* ============ LO QUE DICEN (voz de cada quien) ============ */
+/* Frases por personaje y por ánimo · voseo tico, sin palabras prohibidas. Las
+   'bond' se suman cuando ya hay confianza (cariño nivel alto). Fácil de ampliar. */
+const SAYINGS = {
+  andres: {
+    happy:['¡Qué lindo día! ☀️','Gracias por venir 🙌','¿Vamos al río a pescar?','Todo tuanis por acá 😎','Pura vida, ¿mae?'],
+    hungry:['Me suena la panza 😅','¿Habrá gallo pinto?','Comería algo ya mismo 🍎'],
+    tired:['Uf, qué sueñito 😪','Un cafecito y sigo'],
+    dirty:['Me hace falta un baño 🛁'],
+    sad:['Ando medio bajoneado...','Un abrazo no viene mal 🫂'],
+    sick:['No me siento bien 🤒','Cuidame porfa...'],
+    bond:['Ya sos de la familia ❤️','Con vos todo es más fácil, ¿eh?']
+  },
+  angelica: {
+    happy:['¡Hola, corazón! 🌷','Qué paz se siente hoy','Gracias por cuidarnos 💗','Respirá conmigo, ¿sí?'],
+    hungry:['Comería algo rico 🍓'],
+    tired:['Necesito mi relax 🧖‍♀️','Un ratito de calma...'],
+    dirty:['Un bañito y quedo nueva ✨'],
+    sad:['Hoy ando sensible...'],
+    sick:['Me siento malita 🤒'],
+    bond:['Te tengo mucho cariño 💗','Sos parte de la casa ya']
+  },
+  aurora: {
+    happy:['¡Jugá conmigo! 🎮','¡Otra vez, otra vez!','¡Mirá, mirá! ✨','¡Sos el mejor! 💛'],
+    hungry:['¡Tengo hambreee! 🍓'],
+    tired:['No tengo sueño... *bosteza*'],
+    dirty:['¡Me embarré toda! 😆'],
+    sad:['Me aburro 😞','¿Jugamos algo?'],
+    sick:['Me duele la pancita 🤒'],
+    bond:['¡Sos mi persona favorita! 🌟']
+  },
+  leila: {
+    happy:['¡ajó! 👶','¡gu gu! ','*risita* 😊','¡bubu! 🫧'],
+    hungry:['¡buaaa! 🍼'],
+    tired:['*bosteza* 😴'],
+    dirty:['*puchero* 💦'],
+    sad:['¡buaaa! 😢'],
+    sick:['*carita malita* 🤒'],
+    bond:['*brazos arriba* 🥰']
+  },
+  rubble: {
+    happy:['¡guau! 🐾','*mueve la cola*','¡woof! 🦴'],
+    hungry:['*mira el comedero* 🦴'],
+    tired:['*bosteza* 😴 zzz'],
+    dirty:['*se sacude* 💦'],
+    sad:['*gemido bajito* 🐶'],
+    sick:['*tiembla un poquito* 🤒'],
+    bond:['*se te apoya encima* 🐕‍🦺']
+  },
+  gaia: {
+    happy:['¡GUAU GUAU! ⚡','¡a jugar! 🎾','*salta feliz* 🐾'],
+    hungry:['*ladra al plato* 🦴'],
+    tired:['*se acurruca* 😴'],
+    dirty:['*se revuelca* 🐾'],
+    sad:['*orejas caídas* 🐶'],
+    sick:['*temblorcito* 🤒'],
+    bond:['*te llena de lengüetazos* 😝']
+  }
+};
+function moodKey(){
+  if(P.sick) return 'sick';
+  const m = [['hungry',P.ham],['sad',P.ale],['tired',P.ene],['dirty',P.hig]]
+    .filter(x=>x[1]<30).sort((a,b)=>a[1]-b[1])[0];
+  return m ? m[0] : 'happy';
+}
+let _lastSpoke = 0;
+function charSpeak(){
+  if(!P || P.sleeping || gameMode) return;
+  /* siempre un gestito al tocar; frase cada tanto (para que no sature) */
+  squash = Math.max(squash, 7);
+  hyper = Math.min(60, hyper + 12);
+  const now = Date.now();
+  if(now - _lastSpoke < 2200) return;      /* recién habló */
+  _lastSpoke = now;
+  const s = SAYINGS[cur]; if(!s) return;
+  let pool = (s[moodKey()] || s.happy).slice();
+  if(moodKey()==='happy' && petLevel(P) >= 5 && s.bond) pool = pool.concat(s.bond, s.bond);
+  const line = pool[Math.floor(Math.random()*pool.length)];
+  speech(line, 2600);
+  burst(W/2, charBox.y+6, 3, '💛');
+  tone(cur==='rubble'||cur==='gaia' ? 300 : 560, .05, 'square', .08);
+  vib(6);
+}
+
 /* ============ TOCAR AL PERSONAJE ============ */
 function cvPoint(ev){
   const r = cv.getBoundingClientRect();
@@ -2556,6 +2640,11 @@ function releaseChar(){
     charVY = charOY > 4 ? 1.2 : 0;
     airborne = charOY > 0;
     if(airborne){ boing(); vib(10); }
+    return;
+  }
+  /* toque cortito (sin alzar ni frotar) = interactuar → a veces te habla */
+  if(held < 320 && movedDist < 12 && dirFlips < 2){
+    charSpeak();
     return;
   }
   if(dirFlips >= 4 && held < 2500){
