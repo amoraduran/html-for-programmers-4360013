@@ -68,7 +68,14 @@ Deployed by dragging the file into Vercel.
   dusk + fireflies for bugs, flower pads for memoria, hit-zone for ritmo).
 - Accessories (`drawAcc`) anchor to each animated sprite's real head via
   `ACC_ANCHOR[cur]` (villagers sit in the left quarter of their frame, so a
-  box-center anchor floats the moño/corona off the head — don't use it).
+  box-center anchor floats the moño/corona off the head — don't use it). Head
+  wear is single-select via `P.acc` (moño/corona/collar + the four hats). The
+  hats (`HATS` = gorra/sombrero/gorro/gorrito) are drawn procedurally in the same
+  pixel-rect style, lowered onto the head with a bigger drop for the animated
+  villager frames than for the grid-drawn kids (`hy = ty + (anim?1.5:0.3)*u`).
+  Hats and the "Collar dorado" accessory are people-only for dogs — dogs are
+  side-profile so a front-facing hat reads pasted; they use the collar-colour
+  cosmetic instead. Both renderStuff (picker) and drawAcc skip those for dogs.
 - Painted biome stages: `BG_DATA`/`BG_IMG` hold 8 craftpix scenes (340×250,
   48-col). `BIOME[key]` = {fg1,fg2 (foreground grass colors), lift (px the
   painting shifts up), amb (light color-grade)}. `BG_JOURNEY[cur]` is the

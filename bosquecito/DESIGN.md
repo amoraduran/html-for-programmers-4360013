@@ -156,7 +156,16 @@ Ranked by impact on *"why would someone play and come back?"*
       same swatch picker, gated by cariño level. The old single "Collar dorado"
       accessory is hidden for dogs (the colour picker, which includes dorado, replaces
       it) so a dog never wears two collars. *(done)*
-      Still open: hats/accessory variety.
+- [x] **Cosmetics — hats (people)**: four hand-drawn head accessories — gorra (cap),
+      sombrero de paja (very Costa Rican), gorro de lana, gorrito de fiesta — added to
+      `ACCS`/`HATS`, drawn procedurally in `drawAcc` in the moño/corona style, lowered
+      onto the head (bigger drop for villager frames than grid kids). Gated by cariño
+      level (1/5/7/9) with milestone toasts. Hats are people-only; dogs are side-profile
+      so a front hat reads pasted — they keep the collar system instead. *(done)*
+      Considered the uploaded Raven Fantasy + medieval-NPC packs: fantasy combat helmets
+      / wizard hoods (off-theme, brush the no-`magia` rule) and portraits of other
+      characters — neither fit, so hats were built to match the game's cozy style.
+      Still open: more hat variety / seasonal cosmetics.
 - [ ] **Meaningful unlock gating**: reach-for-it games/food/interactions by level.
 - [ ] **Expressions** (needs face art from the owner — parked).
 - [ ] **Notifications** (if ever packaged as an app): the real appointment hook.

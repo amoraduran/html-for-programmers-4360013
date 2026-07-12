@@ -1172,10 +1172,15 @@ const FOODS = {
   pelota: {n:'Pelota', e:'⚽', precio:25, lvl:1, tipo:'permanente', d:'los juegos dan +20% alegría · para siempre'}
 };
 const ACCS = {
-  mono:  {n:'Moño', e:'🎀', lvl:3},
-  corona:{n:'Corona de flores', e:'🌸', lvl:6},
-  collar:{n:'Collar dorado', e:'✨', lvl:8}
+  gorra:   {n:'Gorra', e:'🧢', lvl:1},
+  mono:    {n:'Moño', e:'🎀', lvl:3},
+  sombrero:{n:'Sombrero de paja', e:'👒', lvl:5},
+  corona:  {n:'Corona de flores', e:'🌸', lvl:6},
+  gorro:   {n:'Gorro de lana', e:'🧶', lvl:7},
+  collar:  {n:'Collar dorado', e:'✨', lvl:8},
+  gorrito: {n:'Gorrito de fiesta', e:'🎉', lvl:9}
 };
+const HATS = ['gorra','sombrero','gorro','gorrito'];   /* accesorios de cabeza (personas) */
 const REACT = {
   manzana:{say:'¡Crunch crunch! 🍎', fx:'💛'},
   confite:{say:'¡Wiiii, azúcar! 🍬', fx:'⭐', hyper:true},
@@ -1493,7 +1498,7 @@ function addXP(n){
     $('lvlSub').textContent = TITLES[after-1];
     $('lvlOverlay').classList.add('show');
     setTimeout(()=>$('lvlOverlay').classList.remove('show'), 2000);
-    const un = {2:'🍬 Confite en la tienda',3:'🎀 Moño en Cosas',4:'🍛 Gallo pinto en la tienda',6:'🌸 Corona de flores en Cosas',7:'🍰 Queque en la tienda',8:'✨ Collar dorado en Cosas',10:'🌟 ¡Una estrellita lo acompaña!'};
+    const un = {2:'🍬 Confite en la tienda',3:'🎀 Moño en Cosas',4:'🍛 Gallo pinto en la tienda',5:'👒 Sombrero de paja en Cosas',6:'🌸 Corona de flores en Cosas',7:'🍰 Queque · 🧶 Gorro en Cosas',8:'✨ Collar dorado en Cosas',9:'🎉 Gorrito de fiesta en Cosas',10:'🌟 ¡Una estrellita lo acompaña!'};
     if(un[after]) setTimeout(()=>toast('Desbloqueaste: '+un[after]), 2400);
     /* el mundo del personaje crece con el cariño (cambia de paisaje) */
     const bIdx = l => l<=3?0 : l<=6?1 : 2;
@@ -1758,6 +1763,7 @@ function renderStuff(){
   const isDog = cur==='rubble' || cur==='gaia';
   Object.keys(ACCS).forEach(k=>{
     if(k==='collar' && isDog) return;   /* los perros usan "color de collar", no el accesorio */
+    if(HATS.includes(k) && isDog) return;   /* los sombreros son para las personas */
     const a = ACCS[k];
     const row = document.createElement('div');
     row.className = 'itemRow';
@@ -2553,6 +2559,9 @@ function drawAcc(px, py, size, sprW, sprH, anim, pw, ph){
   /* en perros el collar lo maneja el sistema de color de collar (incluye dorado),
      así que no dibujamos el "collar dorado" de accesorios encima (evita dos collares) */
   if(P.acc==='collar' && (cur==='rubble' || cur==='gaia')) return;
+  /* los sombreros son para las personas: los perros van de perfil (cabeza al
+     costado) y un sombrero de frente se ve pegado; ellos lucen su collar */
+  if(HATS.includes(P.acc) && (cur==='rubble' || cur==='gaia')) return;
   /* punto de anclaje: centro de la cabeza + una unidad de píxel según el
      tamaño real (funciona tanto para el grid dibujado como para el villager
      animado, cuya cabeza queda arriba y al centro del cuadro) */
@@ -2587,6 +2596,45 @@ function drawAcc(px, py, size, sprW, sprH, anim, pw, ph){
     ctx.fillStyle = '#ffdf8e';
     ctx.fillRect(cx-4*u, neckY, 8*u, Math.max(2,Math.round(u*0.9)));
     ctx.fillRect(cx-0.6*u, neckY+u*0.8, Math.round(1.4*u), Math.round(1.4*u));
+  } else if(HATS.includes(P.acc)){
+    /* baja el sombrero hasta la frente; los villagers (anim) tienen la cabeza
+       más adentro del cuadro que el grid de los niños, así que caen distinto */
+    const R = Math.round, hy = ty + (anim ? 1.5 : 0.3)*u;       /* línea del ala */
+    if(P.acc==='gorra'){          /* gorra con visera */
+      ctx.fillStyle = '#3a6ad0';
+      ctx.fillRect(R(cx-2.6*u), R(hy-2*u), R(5.2*u), R(1.9*u));   /* copa */
+      ctx.fillRect(R(cx-2.9*u), R(hy-0.3*u), R(5.8*u), R(0.7*u)); /* borde */
+      ctx.fillStyle = '#2b4fa0';
+      ctx.fillRect(R(cx+2.3*u), R(hy-0.3*u), R(2.3*u), R(0.7*u)); /* visera */
+      ctx.fillStyle = '#dce6ff';
+      ctx.fillRect(R(cx-0.5*u), R(hy-2.5*u), R(1*u), R(0.8*u));   /* botoncito */
+    } else if(P.acc==='sombrero'){ /* sombrero de paja */
+      ctx.fillStyle = '#d9b06e';
+      ctx.fillRect(R(cx-4.2*u), R(hy-0.1*u), R(8.4*u), R(0.9*u)); /* ala ancha */
+      ctx.fillStyle = '#c79a52';
+      ctx.fillRect(R(cx-4.2*u), R(hy+0.7*u), R(8.4*u), R(0.3*u)); /* sombra del ala */
+      ctx.fillStyle = '#e3c184';
+      ctx.fillRect(R(cx-2.2*u), R(hy-2*u), R(4.4*u), R(1.9*u));   /* copa */
+      ctx.fillStyle = '#a8783a';
+      ctx.fillRect(R(cx-2.2*u), R(hy-0.6*u), R(4.4*u), R(0.5*u)); /* cinta */
+    } else if(P.acc==='gorro'){   /* gorro de lana con pompón */
+      ctx.fillStyle = '#c85a86';
+      ctx.fillRect(R(cx-2.4*u), R(hy-2.1*u), R(4.8*u), R(2.2*u)); /* cuerpo tejido */
+      ctx.fillStyle = '#a8446e';
+      ctx.fillRect(R(cx-2.4*u), R(hy-1.1*u), R(4.8*u), R(0.4*u)); /* punto */
+      ctx.fillStyle = '#efe0bd';
+      ctx.fillRect(R(cx-2.7*u), R(hy-0.1*u), R(5.4*u), R(0.8*u)); /* vuelta (cuff) */
+      ctx.fillStyle = '#fff4dc';
+      ctx.fillRect(R(cx-0.7*u), R(hy-3*u), R(1.4*u), R(1.1*u));   /* pompón */
+    } else if(P.acc==='gorrito'){ /* gorrito de fiesta (cono a franjas) */
+      for(let i=0;i<4;i++){
+        const w = (3.4-0.72*i)*u;
+        ctx.fillStyle = (i%2===0) ? '#e0568a' : '#f6c04a';
+        ctx.fillRect(R(cx-w/2), R(hy-0.3*u - i*0.75*u), R(w), R(0.85*u));
+      }
+      ctx.fillStyle = '#fff4dc';
+      ctx.fillRect(R(cx-0.6*u), R(hy-3.5*u), R(1.2*u), R(1.1*u)); /* pompón arriba */
+    }
   }
 }
 function burst(x,y,n,e){
