@@ -742,6 +742,10 @@ const ORDER = ['leila','rubble','gaia','aurora','angelica','andres'];
 const XP_LV = [0,20,50,90,140,200,270,350,440,540];
 const TITLES = ['Conocidos','Amigos','Buenos amigos','Cómplices','Mejores amigos','Inseparables','Del alma','Familia','Corazón del bosque','Leyenda del bosque'];
 const BASEW = {andres:30, angelica:26, aurora:22, leila:10, rubble:24, gaia:14};
+/* Las grillas de los perros son más grandes que las de las personas (Gaia 30×19,
+   Rubble 24×21 vs personas 16×16). Se achican para verse en proporción. */
+const PET_SCALE = {andres:1, angelica:1, aurora:1, leila:0.85, rubble:0.67, gaia:0.5};
+function petSize(base){ return Math.max(3, Math.round(base*(PET_SCALE[cur]||1))); }
 
 const FOODS = {
   manzana:{n:'Manzana', e:'🍎', ham:20, ale:2,  peso:1, precio:4,  lvl:1, tipo:'comida', d:'+20 comidita'},
@@ -1651,7 +1655,7 @@ function draw(){
 
   if(P){
     const rows = SPRITES[cur].rows;
-    const size = 6;
+    const size = petSize(6);
     const sprW = rows[0].length, sprH = rows.length;
     const foot = (FOOT[cur]||0)*size;
     const slow = (P.peso - BASEW[cur]) >= 12 ? 2 : 1;
@@ -2222,7 +2226,7 @@ function drawFruit(){
     fruit.items.push(it);
   }
   const rows = SPRITES[cur].rows;
-  const size = 4;
+  const size = petSize(4);
   const sprW = rows[0].length, sprH = rows.length;
   const px = fruit.px - sprW*size/2;
   const py = H - 20 - sprH*size;
@@ -2326,7 +2330,7 @@ function runTick(dt){
 }
 function drawRun(){
   const rows = SPRITES[cur].rows;
-  const size = 4;
+  const size = petSize(4);
   const sprW = rows[0].length, sprH = rows.length;
   run.scroll += run.spd;
   run.spd = Math.min(4.6, run.spd + 0.0012);
