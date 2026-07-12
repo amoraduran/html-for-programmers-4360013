@@ -37,6 +37,16 @@ Deployed by dragging the file into Vercel.
   scaled down via `PET_SCALE`/`petSize()` (their grids are bigger than people's).
   Scene props (trees, rock, bush, doghouse, bowl) draw via `drawSprBottom`.
   Full sprite gap-analysis + sourcing notes live in ASSETS.md.
+- Scene depth (outdoor `draw()`): far hill silhouette + a small far tree row
+  (parallax) + horizon haze, then a cached ground gradient (`_groundGrad`),
+  then the near tree row; SCENE props get a contact-shadow ellipse; grass/
+  flowers are drawn as clustered tufts (bigger toward the foreground), not a
+  uniform speckle. During an action minigame (`inGame`) the yard props +
+  foliage are skipped so each game paints its own scene (real river for fish,
+  dusk + fireflies for bugs, flower pads for memoria, hit-zone for ritmo).
+- Accessories (`drawAcc`) anchor to each animated sprite's real head via
+  `ACC_ANCHOR[cur]` (villagers sit in the left quarter of their frame, so a
+  box-center anchor floats the moño/corona off the head — don't use it).
 
 ## Hard rules (do not violate)
 
