@@ -1861,6 +1861,7 @@ let squash = 0, hyper = 0, petting = false, petStart = 0, lastPetFx = 0;
 /* física del personaje (alzarlo, lanzarlo, rebote) */
 let heldChar = false, charOX = 0, charOY = 0, charVX = 0, charVY = 0, airborne = false;
 let stroll = null, _prevOX = 0, walkDir = 1, _oxVel = 0;   /* paseo espontáneo por la escena */
+let propAnim = null;   /* cosa del escenario que reacciona al tocarla (tiembla/salta) */
 let grabDX = 0, grabDY = 0, dizzy = 0, moveBuf = [], dirFlips = 0, lastMX = 0, movedDist = 0;
 let charBox = {x:0,y:0,w:0,h:0};
 let dropFood = null;           /* comidita arrastrable */
@@ -2018,14 +2019,35 @@ function draw(){
   /* decoración según el personaje (perros = casita; personas = cosas de persona; bebé = cuarto).
      en minijuego no dibujamos las cosas del jardín (dejan la escena limpia). */
   if(sky.night && !indoor) ctx.globalAlpha = 0.9;
-  if(!inGame) (SCENE[cur] || []).forEach(pr => {
+  if(propAnim && (propAnim.cur !== cur || --propAnim.t <= 0)) propAnim = null;   /* reacción al toque */
+  if(!inGame) (SCENE[cur] || []).forEach((pr, idx) => {
+    /* si acabás de tocar esta cosa, tiembla y pega un saltito */
+    let sx = 0, sy = 0;
+    if(propAnim && propAnim.idx === idx){
+      const q = propAnim.t/20;
+      sy = -Math.abs(Math.sin(propAnim.t*0.7))*5*q;
+      sx = Math.sin(propAnim.t*1.1)*2.2*q;
+    }
     /* sombra de contacto: la cosa se apoya en el suelo, no flota "pegoteada" */
     if(!indoor){
       ctx.save(); ctx.globalAlpha *= 0.55; ctx.fillStyle = 'rgba(0,0,0,.22)';
       ctx.beginPath(); ctx.ellipse(pr[1], H - pr[2] + 1, Math.max(6, pr[3]*0.34), 4, 0, 0, 7); ctx.fill();
       ctx.restore();
     }
-    drawSprBottom(pr[0], pr[1], H - pr[2], pr[3]);
+    drawSprBottom(pr[0], pr[1] + sx, H - pr[2] + sy, pr[3]);
+    /* nido de pasto en la base de rocas/matas: las asienta en el suelo en vez
+       de que se vean "pegoteadas" sobre el fondo pintado */
+    if(!indoor && /rock|bush/.test(pr[0])){
+      const im = SPR_IMG[pr[0]];
+      const w = (im && im.naturalHeight) ? pr[3]*im.naturalWidth/im.naturalHeight : pr[3];
+      ctx.strokeStyle = curBiome() ? curBiome().fg1 : '#5f8f58'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      const bx = pr[1]+sx, by = H-pr[2];
+      for(let g=-2; g<=2; g++){
+        const gx = bx + g*(w*0.16), sway = reduceMotion?0:Math.sin(frame/40+g+idx)*1.4;
+        ctx.beginPath(); ctx.moveTo(gx, by); ctx.lineTo(gx+sway, by-5-(g===0?2:0)); ctx.stroke();
+      }
+      ctx.lineCap = 'butt';
+    }
   });
   ctx.globalAlpha = 1;
   if(!indoor && !inGame && !painted){
@@ -2505,6 +2527,24 @@ function inCharBox(x,y,pad){
   const p = pad||10;
   return x > charBox.x-p && x < charBox.x+charBox.w+p && y > charBox.y-p && y < charBox.y+charBox.h+p;
 }
+/* Tocar una cosa del escenario (roca, mata, casita…) → tiembla/salta un poquito. */
+function tapProp(x, y){
+  if(SCENE_TYPE[cur]==='indoor') return false;
+  const list = SCENE[cur] || [];
+  for(let i=0;i<list.length;i++){
+    const pr = list[i], im = SPR_IMG[pr[0]], h = pr[3];
+    const w = (im && im.naturalHeight) ? h*im.naturalWidth/im.naturalHeight : h;
+    const cx = pr[1], gy = H - pr[2];
+    if(x > cx-w/2-8 && x < cx+w/2+8 && y > gy-h-10 && y < gy+8){
+      propAnim = {cur, idx:i, t:20};
+      const leafy = /bush|planter/.test(pr[0]);
+      burst(cx, gy-h*0.6, 3, leafy?'🍃':'✨');
+      tone(leafy?520:300, .04, 'square', .09); vib(6);
+      return true;
+    }
+  }
+  return false;
+}
 cv.addEventListener('pointerdown', ev=>{
   if(!P) return;
   lastInteract = Date.now();
@@ -2562,6 +2602,8 @@ cv.addEventListener('pointerdown', ev=>{
     movedDist = 0; dirFlips = 0; lastMX = pt.x; moveBuf = [];
     squash = 8;
     sfx('sel'); vib(8);
+  } else {
+    tapProp(pt.x, pt.y);   /* si no tocaste al personaje, quizá tocaste una cosita */
   }
 });
 cv.addEventListener('pointermove', ev=>{
