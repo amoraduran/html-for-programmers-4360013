@@ -45,7 +45,7 @@ Deployed by dragging the file into Vercel.
   (family constraint). Internal identifiers may keep legacy names.
 - Family-friendly always: no death mechanics (use the "el bosque lo arropó"
   rescue), no dark themes.
-- Keep it one file. No frameworks, no external assets except the Google font.
+- Keep it one file. No frameworks, no external assets (the font is embedded).
 - Gestures are optional delights: every gesture must keep a button fallback.
 - New rewards/actions must route coins through `addCoins()` (juice + save),
   XP through `addXP()`, and missions through `missionProg()`.
@@ -78,7 +78,9 @@ from visible (non-script) content.
 
 ## Design language
 
-- Pixel aesthetic: 'Press Start 2P', palette in CSS `:root` (--plum borders,
+- Pixel aesthetic: 'Pixelify Sans' (cozy rounded pixel font, embedded as a
+  base64 @font-face so the game is fully self-contained — no external assets at
+  all now), palette in CSS `:root` (--plum borders,
   --gold highlights, --petal pink, forest greens). Chunky 3px borders +
   bottom box-shadow for the pressed-button look.
 - The play screen is a "consolita" (Tamagotchi shell): canvas screen, tappable
