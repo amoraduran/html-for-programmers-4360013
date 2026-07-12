@@ -142,6 +142,19 @@ step("run collision", ()=> {
   w.draw();
   if(!D().run.over) throw 0;
 });
+step("run jump buffer + coyote", ()=> {
+  D().P.ene = 90; w.startRun();
+  w.runJump();
+  if(D().run.vy <= 0) throw new Error('no first jump');
+  D().run.buffer = 0;
+  w.runJump();                       // airborne: should buffer, not jump
+  if(D().run.buffer <= 0) throw new Error('input not buffered');
+  D().run.logs.length = 0;
+  D().run.oy = 0.5; D().run.vy = -1;  // descending toward ground
+  w.draw();                          // lands -> buffered jump fires
+  if(D().run.vy <= 0) throw new Error('buffered jump did not fire');
+  w.endGame(true);
+});
 step("panels blocked mid-game", ()=> {
   setTimeout(()=>{}, 0);
 });
@@ -314,8 +327,28 @@ step("fish finish", ()=> {
   w.fishTick(0.1);
   if(D().gameMode || !D().G.logros.pescador) throw new Error('finish');
 });
+step("result stars overlay", ()=> {
+  w.endGame(true); D().P.ene = 90; D().P.sick = false;
+  w.startGuess(); D().guess.hits = 5; w.finishGuess();
+  if(!$('resOverlay').className.includes('show')) throw new Error('overlay not shown');
+  const spans = w.document.querySelectorAll('#resStars span');
+  if(spans.length !== 3) throw new Error('star span count '+spans.length);
+  if(spans[0].textContent !== '⭐') throw new Error('5/5 should be 3 stars');
+  w.hideResult();
+  if($('resOverlay').className.includes('show')) throw new Error('not hidden');
+});
+step("result replay restarts game", ()=> {
+  w.endGame(true); D().P.ene = 90; D().P.sick = false;
+  w.startBugs(); D().bugs.score = 5; D().bugs.caught = 5; D().bugs.t = 0;
+  w.bugsTick(0.1);                       // finishes -> shows stars with replay=startBugs
+  if(D().gameMode) throw new Error('did not end');
+  w.doReplay();
+  if(D().gameMode !== 'bugs') throw new Error('replay did not restart, mode='+D().gameMode);
+  if($('resOverlay').className.includes('show')) throw new Error('overlay still open');
+  w.endGame(true);
+});
 
 setTimeout(()=>{
-  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 47 TESTS PASSED");
+  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 50 TESTS PASSED");
   process.exit(errors.length?1:0);
 }, 700);

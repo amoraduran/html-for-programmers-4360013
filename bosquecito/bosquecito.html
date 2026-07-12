@@ -22,6 +22,7 @@
     --sky:#8fd0c7;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  button{touch-action:manipulation}   /* sin retardo de 300ms al tocar */
   html,body{height:100%}
   body{
     font-family:'Press Start 2P', monospace;
@@ -189,6 +190,21 @@
   #lvlBig{font-size:30px;animation:alertBounce .8s ease-in-out infinite}
   #lvlTitle{font-size:13px;color:var(--plum);margin-top:8px}
   #lvlSub{font-size:7px;color:#a06a90;margin-top:7px}
+  #resOverlay{
+    position:absolute;inset:0;background:rgba(22,38,29,.72);display:none;
+    align-items:center;justify-content:center;z-index:29;cursor:pointer;
+  }
+  #resOverlay.show{display:flex}
+  #resCard{
+    background:var(--cream);border:4px solid var(--plum);border-radius:18px;
+    padding:18px 26px;text-align:center;box-shadow:0 6px 0 var(--plum);
+    animation:lvlIn .4s cubic-bezier(.2,1.6,.4,1);
+  }
+  #resStars{font-size:28px;letter-spacing:5px}
+  #resStars span{display:inline-block;animation:starPop .45s both cubic-bezier(.2,1.7,.4,1)}
+  @keyframes starPop{from{transform:scale(0) rotate(-20deg);opacity:0}to{transform:none;opacity:1}}
+  #resTitle{font-size:11px;color:var(--plum);margin-top:8px;line-height:1.6}
+  #resSub{font-size:7px;color:#a06a90;margin-top:7px;line-height:1.9}
 
   @media (max-height:700px){
     #consola{gap:7px;padding:8px 8px 10px}
@@ -348,6 +364,13 @@
         <button onclick="openPanel('p-logros')">🏆<span>Metas</span></button>
       </div>
     </div>
+
+    <div id="resOverlay" onpointerdown="hideResult()"><div id="resCard">
+      <div id="resStars"></div>
+      <div id="resTitle"></div>
+      <div id="resSub"></div>
+      <button class="pxbtn gold" id="resReplay" onpointerdown="event.stopPropagation()" onclick="doReplay()">🔁 Otra vez</button>
+    </div></div>
 
     <div id="lvlOverlay"><div id="lvlCard">
       <div id="lvlBig">💕</div>
@@ -1386,11 +1409,15 @@ setInterval(()=>{
     sleepyHint = true;
     speech('Tengo sueñito... 🥱 ¿me arropás?', 5000);
   }
-  if(gameMode==='fruit') fruitTick(dt/(demo?60:1));
-  if(gameMode==='run') runTick(dt/(demo?60:1));
-  if(gameMode==='bugs') bugsTick(dt/(demo?60:1));
-  if(gameMode==='beat') beatTick(dt/(demo?60:1));
-  if(gameMode==='fish') fishTick(dt/(demo?60:1));
+  /* los cronómetros de los juegos se congelan si la pestaña está oculta
+     (una llamada o notificación no te gasta el tiempo de la partida) */
+  if(!document.hidden){
+    if(gameMode==='fruit') fruitTick(dt/(demo?60:1));
+    if(gameMode==='run') runTick(dt/(demo?60:1));
+    if(gameMode==='bugs') bugsTick(dt/(demo?60:1));
+    if(gameMode==='beat') beatTick(dt/(demo?60:1));
+    if(gameMode==='fish') fishTick(dt/(demo?60:1));
+  }
   refreshTop();
 }, 1000);
 setInterval(saveAll, 5000);
@@ -1444,6 +1471,7 @@ let flies = [0,1,2,3,4,5].map(i=>({a: i*1.05, r: 30+i*12}));
 let mariposa = null, mariposaTimer = 900;
 let thoughtT = 0, sleepyHint = false;
 let gameMode = null;
+let hitStop = 0;   /* congela la imagen unos frames en los impactos (game feel) */
 
 function skyColors(){
   const h = new Date().getHours();
@@ -1451,13 +1479,20 @@ function skyColors(){
   if(h>=17 && h<19) return {top:'#e8a87c', bot:'#f4c9a0', night:false};
   return {top:'#1a2b3a', bot:'#24402e', night:true};
 }
+let _skyGrad = null, _skyKey = '';
 function draw(){
   frame++;
   drawTitle();
   const sky = skyColors();
-  const gr = ctx.createLinearGradient(0,0,0,H);
-  gr.addColorStop(0, sky.top); gr.addColorStop(1, sky.bot);
-  ctx.fillStyle = gr;
+  /* el degradé del cielo sólo cambia 3 veces al día: lo cacheamos en vez de
+     recrearlo cada frame (menos basura por recolectar, más fluido) */
+  const skyKey = sky.top + sky.bot;
+  if(skyKey !== _skyKey){
+    _skyKey = skyKey;
+    _skyGrad = ctx.createLinearGradient(0,0,0,H);
+    _skyGrad.addColorStop(0, sky.top); _skyGrad.addColorStop(1, sky.bot);
+  }
+  ctx.fillStyle = _skyGrad;
   ctx.fillRect(0,0,W,H);
   if(sky.night){
     ctx.fillStyle = '#ffdf8e';
@@ -2059,6 +2094,7 @@ function finishGuess(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(h+'/5 aciertos', '+'+mon+' 🪙', stars3(h,3,5), startGuess);
   toast((h>=4?'🌟 ¡Tremendo!':'🎉 ¡Buen juego!')+' '+h+'/5 · +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
@@ -2122,6 +2158,7 @@ function drawFruit(){
       if(it.bad){
         fruit.combo = 0;
         fruit.stun = 42;
+        hitStop = 3;
         splat(); vib(30);
         floatText(it.x, it.y-8, '¡bleh! 🍍', '#f4a7c3');
         burst(it.x, it.y, 3, '💢');
@@ -2169,31 +2206,38 @@ function finishFruit(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(sc+' frutillas 🍓', '+'+mon+' 🪙', stars3(sc,12,22), startFruit);
   toast('🍓 ¡'+sc+' frutillas! +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
 }
 /* ============ JUEGO 3: SALTÁ TRONCOS ============ */
-let run = {t:0, logs:[], oy:0, vy:0, spd:2.2, count:0, scroll:0, spawn:0, over:false};
+const RUN_COYOTE = 7, RUN_BUFFER = 8;    /* frames de perdón: saltar tarde / anticipar */
+let run = {t:0, logs:[], oy:0, vy:0, spd:2.2, count:0, scroll:0, spawn:0, over:false, coyote:0, buffer:0};
 function startRun(){
   if(!canPlay()) return;
   closePanels();
   $('s-play').classList.add('ingame');
   gameMode = 'run';
-  run = {t:40, logs:[], oy:0, vy:0, spd:2.2, count:0, scroll:0, spawn:60, over:false};
+  run = {t:40, logs:[], oy:0, vy:0, spd:2.2, count:0, scroll:0, spawn:60, over:false, coyote:0, buffer:0};
   $('gameUI').classList.add('open');
   $('guessBtns').style.display = 'none';
   $('gameExit').style.display = 'block';
   $('gameHud').innerHTML = '🪵 0 · ⏱️ 40';
   toast('Tocá la pantalla para saltar los troncos 🦘');
 }
+function runDoJump(){
+  run.vy = 8.2;
+  run.oy = 0.01;
+  run.coyote = 0;
+  boing(); vib(8);
+}
 function runJump(){
   if(run.over) return;
-  if(run.oy === 0){
-    run.vy = 8.2;
-    run.oy = 0.01;
-    boing(); vib(8);
-  }
+  /* coyote-time: saltar hasta 7 frames después de dejar el piso.
+     buffer: si tocás justo antes de aterrizar, el salto sale al caer. */
+  if(run.oy === 0 || run.coyote > 0) runDoJump();
+  else run.buffer = RUN_BUFFER;
 }
 function runTick(dt){
   if(run.over) return;
@@ -2213,12 +2257,19 @@ function drawRun(){
     const gx = (W - ((run.scroll + i*47) % (W+40)));
     ctx.fillRect(gx, H-24+(i%3)*5, 5, 3);
   }
-  /* salto */
+  /* salto con perdón de input (coyote-time + buffer) */
   if(run.oy > 0 || run.vy > 0){
     run.oy += run.vy;
     run.vy -= 0.52;
-    if(run.oy <= 0){ run.oy = 0; run.vy = 0; squash = 8; }
+    if(run.oy <= 0){
+      run.oy = 0; run.vy = 0; squash = 8;
+      run.coyote = RUN_COYOTE;
+      if(run.buffer > 0){ run.buffer = 0; runDoJump(); }   /* salto anticipado */
+    } else if(run.coyote > 0){ run.coyote--; }
+  } else {
+    run.coyote = RUN_COYOTE;                                /* corriendo en el piso */
   }
+  if(run.buffer > 0) run.buffer--;
   /* troncos */
   run.spawn--;
   if(run.spawn <= 0){
@@ -2263,7 +2314,7 @@ function finishRun(crashed){
   if(run.over) return;
   run.over = true;
   const n = run.count;
-  if(crashed){ shake(); splat(); vib(35); burst(80, H-60, 4, '💫'); }
+  if(crashed){ hitStop = 5; shake(); splat(); vib(35); burst(80, H-60, 4, '💫'); }
   const mon = n;
   const bonus = G.pelota ? 1.2 : 1;
   P.ale = Math.min(100, P.ale + Math.round(Math.min(35, n*3)*bonus));
@@ -2278,6 +2329,7 @@ function finishRun(crashed){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   setTimeout(()=>{
     endGame();
+    showStars(n+' troncos 🪵', '+'+mon+' 🪙', stars3(n,6,12), startRun);
     toast((crashed?'💥 ¡Pum! ':'🦘 ¡Qué salto! ')+n+' troncos · +'+mon+' 🪙');
     saveAll(); refreshTop();
     sfx(crashed?'back':'win');
@@ -2378,6 +2430,7 @@ function finishMemo(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(r+' rondas 🌼', '+'+mon+' 🪙', stars3(r,3,6), startMemo);
   toast((r>=6?'🌟 ¡Qué memoria! ':'🌼 ¡Bien jugado! ')+r+' rondas · +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
@@ -2414,6 +2467,9 @@ function drawBugs(){
     it.age++; it.ttl--;
     const pop = Math.min(1, it.age/8) * Math.min(1, it.ttl/8);
     if(it.bad){
+      /* aro de aviso: la abeja se distingue sin depender del color (daltónicos) */
+      ctx.strokeStyle = '#e2607a'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(it.x, it.y, 15, 0, 7); ctx.stroke();
       ctx.font = '18px monospace';
       ctx.fillText('🐝', it.x-9, it.y+6);
     } else {
@@ -2434,9 +2490,10 @@ function bugsTap(x,y){
   if(bugs.over) return;
   for(let i=bugs.items.length-1;i>=0;i--){
     const it = bugs.items[i];
-    if(Math.hypot(x-it.x, y-it.y) < it.r+8){
+    if(Math.hypot(x-it.x, y-it.y) < it.r+14){   /* hitbox generoso: más perdón */
       if(it.bad){
         bugs.combo = 0; bugs.score = Math.max(0, bugs.score-1);
+        hitStop = 3;
         splat(); vib(30); floatText(it.x, it.y-8, '¡ay! 🐝', '#f4a7c3');
       } else {
         bugs.combo++;
@@ -2469,6 +2526,7 @@ function finishBugs(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(sc+' lucecitas ✨', '+'+mon+' 🪙', stars3(sc,10,20), startBugs);
   toast('✨ ¡'+sc+' lucecitas! +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
@@ -2556,6 +2614,7 @@ function finishBeat(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(sc+' puntos 🎵', '+'+mon+' 🪙', stars3(sc,10,20), startBeat);
   toast('🎵 ¡'+sc+' puntos! +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
@@ -2645,6 +2704,7 @@ function finishFish(){
   if(G.cnt.juegos>=10) unlockLogro('jugon');
   vib([15,30,15]);
   endGame();
+  showStars(caught+' pececitos 🎣', '+'+mon+' 🪙', stars3(caught,4,8), startFish);
   toast('🎣 ¡'+caught+' pececitos! +'+mon+' 🪙');
   saveAll(); refreshTop();
   sfx('win');
@@ -2655,12 +2715,42 @@ function endGame(quiet){
   $('s-play').classList.remove('ingame');
   $('gameHud').classList.remove('urgent');
   fruitDir = 0;
+  hitStop = 0;
   $('moveBtns').style.display = 'none';
   heldChar = false; petting = false; charOX = 0; charOY = 0; charVX = 0; charVY = 0; airborne = false;
   $('gameUI').classList.remove('open');
   hideBubble();
   if(quiet) sfx('back');
 }
+
+/* ============ RESULTADO (estrellitas) ============ */
+/* Momento de recompensa al terminar: 1–3 estrellas según cómo te fue.
+   Patrón clásico de juegos móviles que invita a volver a intentar. */
+function stars3(v, two, three){ return v>=three?3 : v>=two?2 : v>0?1:0; }
+let resTimer = null, _replay = null;
+function showStars(title, sub, stars, replay){
+  stars = Math.max(0, Math.min(3, stars|0));
+  const box = $('resStars');
+  box.innerHTML = '';
+  for(let i=0;i<3;i++){
+    const s = document.createElement('span');
+    const on = i < stars;
+    s.textContent = on ? '⭐' : '☆';
+    s.style.opacity = on ? 1 : .3;
+    s.style.animationDelay = (i*0.14)+'s';
+    box.appendChild(s);
+  }
+  $('resTitle').innerHTML = title;
+  $('resSub').innerHTML = sub;
+  _replay = replay || null;
+  $('resReplay').style.display = _replay ? 'inline-block' : 'none';
+  $('resOverlay').classList.add('show');
+  clearTimeout(resTimer);
+  resTimer = setTimeout(hideResult, 3200);
+}
+function hideResult(){ $('resOverlay').classList.remove('show'); }
+/* "otra vez": volver a jugar el mismo juego sin fricción (retención) */
+function doReplay(){ const r = _replay; hideResult(); if(r) r(); }
 
 /* ============ TÍTULO ============ */
 function drawTitle(){
@@ -2704,11 +2794,15 @@ function frameLoop(ts){
   if(delta > 250) delta = 250;            /* volviendo de segundo plano: no acelerar */
   _frameAcc += delta;
   let steps = 0;
-  while(_frameAcc >= FRAME_MS && steps < 5){ draw(); _frameAcc -= FRAME_MS; steps++; }
+  while(_frameAcc >= FRAME_MS && steps < 5){
+    if(hitStop > 0){ hitStop--; }     /* hit-stop: se congela la imagen en el golpe */
+    else { draw(); }
+    _frameAcc -= FRAME_MS; steps++;
+  }
 }
 document.addEventListener('visibilitychange', ()=>{
   if(document.hidden){ _loopOn = false; }
-  else if(!_loopOn){ _loopOn = true; _lastTs = 0; _frameAcc = 0; requestAnimationFrame(frameLoop); }
+  else if(!_loopOn){ _loopOn = true; _lastTs = 0; _frameAcc = 0; lastTick = Date.now(); requestAnimationFrame(frameLoop); }
 });
 
 /* ============ INICIO ============ */
