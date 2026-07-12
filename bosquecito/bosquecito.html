@@ -623,23 +623,40 @@ function drawNightSky(){
   ctx.fillStyle = '#fff2c8';                                                /* estrellas titilando */
   for(let i=0;i<22;i++){ const sx=(i*53)%W, sy=(i*29)%(FG_TOP-24); if((frame+i*11)%150<104) ctx.fillRect(sx, sy, 2, 2); }
   ctx.beginPath(); ctx.arc(W-44, 32, 12, 0, 7); ctx.fillStyle='#fff6ec'; ctx.fill();   /* luna */
-  const cols = ['#6ff0c8', '#7fd0ff', '#b98cff'];                            /* cortinas de aurora */
-  for(let r=0;r<3;r++){
-    ctx.globalAlpha = 0.10 + 0.05*Math.sin(frame/48 + r*1.4);
-    ctx.strokeStyle = cols[r]; ctx.lineWidth = 11 - r*3;
+  /* cortinas de aurora que ondean (dos pasadas: halo ancho + veta brillante) */
+  const cols = ['#7dffcf', '#8ad6ff', '#c6a0ff', '#9fffe0'];
+  for(let r=0;r<4;r++){
+    const base = 22 + r*22, pulse = 0.5 + 0.5*Math.sin(frame/50 + r*1.3);
+    ctx.strokeStyle = cols[r];
+    ctx.lineCap = 'round';
+    /* halo ancho y tenue */
+    ctx.globalAlpha = (0.06 + 0.05*pulse);
+    ctx.lineWidth = 22 - r*3;
     ctx.beginPath();
-    for(let x=0;x<=W;x+=8){
-      const y = 26 + r*20 + Math.sin(x/52 + frame/55 + r)*11 + Math.sin(x/21 - frame/80)*4;
+    for(let x=-8;x<=W+8;x+=8){
+      const y = base + Math.sin(x/54 + frame/58 + r)*13 + Math.sin(x/19 - frame/84)*5;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    /* veta brillante encima */
+    ctx.globalAlpha = (0.16 + 0.16*pulse);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    for(let x=-8;x<=W+8;x+=8){
+      const y = base + Math.sin(x/54 + frame/58 + r)*13 + Math.sin(x/19 - frame/84)*5;
       ctx.lineTo(x, y);
     }
     ctx.stroke();
   }
-  ctx.globalAlpha = 1;
+  ctx.globalAlpha = 1; ctx.lineCap = 'butt';
 }
 /* Franja de primer plano (nuestro pasto, ENFRENTE del cuadro) con borde de
    pasto, sombra de contacto y matas — lo que ya nos gustaba, ahora integrado. */
 function drawFgBand(b, sky){
   const top = FG_TOP;
+  /* neblina de distancia justo sobre el borde: funde el cuadro con el pasto */
+  ctx.fillStyle = sky.night ? 'rgba(120,140,180,.05)' : 'rgba(255,252,242,.16)';
+  ctx.fillRect(0, top-10, W, 12);
   const g = ctx.createLinearGradient(0, top, 0, H);
   g.addColorStop(0, b.fg1); g.addColorStop(1, b.fg2);
   ctx.fillStyle = g;
