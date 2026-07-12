@@ -1,5 +1,29 @@
 # Bosquecito — asset plan & missing-sprites list
 
+## Painted backgrounds (craftpix nature pack) — WIRED (POC)
+8 layered parallax scenes (576×324): meadow/big-tree, plains, snowy mountains,
+forest line, meadow+cloud, aurora/northern-lights (night), rocky cliffs, coast.
+Processed cover-crop → 340×250, 48-color quantized PNG, embedded in `BG_DATA`
+(6 of 8 in so far: meadow, plains, mountains, forestline, coast, aurora).
+`BG_THEME[cur]` maps each character to a biome; `drawSceneBG()` paints it and
+the engine skips the procedural scene + foliage (props/characters draw on top,
+night/dusk gets a tint overlay). Falls back to the procedural depth scene if
+the image isn't ready (so the jsdom suite still passes). ~16KB base64 each.
+OPEN: final mapping (per-character vs level-progression vs both); which of the
+8 scenes to keep; whether to add animated clouds/bird over the painting.
+
+Other new packs (2026-07 drop):
+- **Free Pixel Art Forest** — a moody dark deep-forest parallax (12 layers,
+  928×793). Great candidate for a night/forest theme, not the cozy day home.
+- **Emoticon packs (green "hype", purple)** — single lossy JPGs of meme-y
+  emote faces on colored bg. Off-brand for cozy Bosquecito + hard to slice
+  cleanly. Not recommended for the family faces (still need real expressions).
+- **seamless_patterns / separate / texture atlases** — hundreds of 16px tiling
+  material textures. A resource library for ground/wall/floor texturing, not
+  scenery. Unused for now.
+
+
+
 Legend: ✅ have & wired · 🟢 have in packs (unused) · 🟡 partial / needs a better fit · ❌ missing (need to source)
 
 Embedding rule: everything ships as base64 data URIs inside `bosquecito.html` (one file, no
