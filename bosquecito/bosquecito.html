@@ -629,8 +629,31 @@ const CHAR_HURT = {
 const OUTFITS = {
   andres:  {label:'camisa',  colors:[['rojo','#962e34',2],['azul','#2e4a96',4],['verde','#2c7048',6],['mostaza','#b88e2e',8]]},
   angelica:{label:'vestido', colors:[['celeste','#78b6ec',2],['lila','#ac82e2',4],['menta','#76ceaa',6],['solcito','#f6ce5c',8]]},
-  aurora:  {label:'ropa',    colors:[['rosado','#f28cb6',2],['celeste','#78b6ec',4],['verde','#78ca8e',6],['solcito','#f6d25c',8]]}
+  aurora:  {label:'ropa',    colors:[['rosado','#f28cb6',2],['celeste','#78b6ec',4],['verde','#78ca8e',6],['solcito','#f6d25c',8]]},
+  gaia:    {label:'collar', collar:true, colors:[['rojo','#d84a4a',2],['celeste','#5aa8e0',4],['verde','#4caf6a',6],['dorado','#e6b84a',8]]},
+  rubble:  {label:'collar', collar:true, colors:[['azul','#4a6ad8',2],['rojo','#d84a4a',4],['naranja','#e08a3a',6],['dorado','#e6b84a',8]]}
 };
+function outfitHex(who, id){
+  const of = OUTFITS[who]; if(!of) return null;
+  const c = of.colors.find(x=>x[0]===id); return c ? c[1] : null;
+}
+/* Anclaje del collar por perro (el cuello cae distinto en cada sheet): fx =
+   fracción horizontal mirando a la derecha, fy = fracción vertical. */
+const COLLAR_POS = {
+  gaia:   {fx:0.61, fy:0.45},
+  rubble: {fx:0.68, fy:0.46}
+};
+/* collar de perro: banda cortita + placa en el cuello (los perros no tienen
+   prenda que recolorear, así que lo dibujamos encima). */
+function drawCollar(hex, flip, who){
+  const a = COLLAR_POS[who] || {fx:0.66, fy:0.48};
+  const bw = charBox.w, bh = charBox.h;
+  const nx = charBox.x + bw*(flip ? (1-a.fx) : a.fx);
+  const ny = charBox.y + bh*a.fy;
+  ctx.fillStyle = '#2e2137'; ctx.fillRect(Math.round(nx-5), Math.round(ny-1), 10, 5);
+  ctx.fillStyle = hex;      ctx.fillRect(Math.round(nx-4), Math.round(ny), 8, 3);
+  ctx.fillStyle = '#ffdf8e'; ctx.fillRect(Math.round(nx-1), Math.round(ny+2), 2, 2);
+}
 /* Devuelve la hoja con la ropa puesta si corresponde (y existe embebida). */
 function resolveSheet(s){
   if(typeof P!=='undefined' && P && P.outfit){ const k = s+'__'+P.outfit; if(SPR_IMG[k]) return k; }
@@ -1732,7 +1755,9 @@ function renderStuff(){
   const box = $('stuffList');
   box.innerHTML = '';
   const lv = petLevel(P);
+  const isDog = cur==='rubble' || cur==='gaia';
   Object.keys(ACCS).forEach(k=>{
+    if(k==='collar' && isDog) return;   /* los perros usan "color de collar", no el accesorio */
     const a = ACCS[k];
     const row = document.createElement('div');
     row.className = 'itemRow';
@@ -1748,7 +1773,7 @@ function renderStuff(){
   const of = OUTFITS[cur];
   if(of){
     const hdr = document.createElement('div');
-    hdr.className = 'stuffHdr'; hdr.textContent = '👕 color de '+of.label;
+    hdr.className = 'stuffHdr'; hdr.textContent = (of.collar?'🐾':'👕')+' color de '+of.label;
     box.appendChild(hdr);
     const row = document.createElement('div'); row.className = 'outfitRow';
     row.appendChild(swatchEl('__none', 'var(--moss)', 0, lv));      /* original */
@@ -2373,6 +2398,10 @@ function draw(){
     else { drawSprite(ctx, rows, px - (W/2+gx), py - baseY, size, blinking||P.sleeping, EYES[cur]); }
     ctx.restore();
     drawAcc(px, py, size, sprW, sprH, anim, pw, ph);
+    if(isDog && P.outfit && OUTFITS[cur] && OUTFITS[cur].collar){
+      const hex = outfitHex(cur, P.outfit);
+      if(hex) drawCollar(hex, walking && walkDir < 0, cur);
+    }
     if(dizzy > 0){
       const a = frame/5;
       ctx.font = '11px monospace';
@@ -2521,6 +2550,9 @@ function stepParticles(){
 }
 function drawAcc(px, py, size, sprW, sprH, anim, pw, ph){
   if(!P.acc) return;
+  /* en perros el collar lo maneja el sistema de color de collar (incluye dorado),
+     así que no dibujamos el "collar dorado" de accesorios encima (evita dos collares) */
+  if(P.acc==='collar' && (cur==='rubble' || cur==='gaia')) return;
   /* punto de anclaje: centro de la cabeza + una unidad de píxel según el
      tamaño real (funciona tanto para el grid dibujado como para el villager
      animado, cuya cabeza queda arriba y al centro del cuadro) */

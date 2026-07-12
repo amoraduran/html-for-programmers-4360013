@@ -151,7 +151,12 @@ Ranked by impact on *"why would someone play and come back?"*
 - [x] **Cosmetics — outfit colours**: unlockable shirt/dress/top colours per person
       (palette-swapped idle/walk/hurt sheets → `pa_*__<colour>`, resolveSheet applies
       them everywhere, swatch picker in Cosas gated by cariño level). *(done)*
-      Still open: hats/accessory variety, dog-collar colours.
+- [x] **Cosmetics — dog collar colours**: Rubble & Gaia get an unlockable collar in
+      four colours each, drawn on the neck (`drawCollar` + `COLLAR_POS` per-dog anchor);
+      same swatch picker, gated by cariño level. The old single "Collar dorado"
+      accessory is hidden for dogs (the colour picker, which includes dorado, replaces
+      it) so a dog never wears two collars. *(done)*
+      Still open: hats/accessory variety.
 - [ ] **Meaningful unlock gating**: reach-for-it games/food/interactions by level.
 - [ ] **Expressions** (needs face art from the owner — parked).
 - [ ] **Notifications** (if ever packaged as an app): the real appointment hook.

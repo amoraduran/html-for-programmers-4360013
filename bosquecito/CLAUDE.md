@@ -45,7 +45,13 @@ Deployed by dragging the file into Vercel.
   level). Palette-swapped sheets are embedded as `pa_<who>[_walk|_hurt]__<colour>`;
   `resolveSheet(s)` in drawAnimFrame swaps to `s+'__'+P.outfit` when it exists, so
   the outfit shows everywhere the character animates. Picker lives in the Cosas
-  panel (renderStuff → swatchEl/wearOutfit); choice saved in `P.outfit`. `drawAnimFrame(a,
+  panel (renderStuff → swatchEl/wearOutfit); choice saved in `P.outfit`. Dogs
+  (Rubble/Gaia) have no recolorable garment, so their `OUTFITS` entry is
+  `{collar:true, ...}` and the chosen colour is painted as a neck collar by
+  `drawCollar(hex, flip, who)` using per-dog `COLLAR_POS` anchors (the dachshund's
+  neck sits differently than the boxer's). For dogs the old "Collar dorado" ACCS
+  accessory is suppressed in both renderStuff and drawAcc so they never wear two
+  collars — the colour picker (which includes dorado) is the single collar system. `drawAnimFrame(a,
   cx, groundY, opts)` draws the current frame (opts.h overrides height; opts.frame
   forces one; opts.flip mirrors). The main draw + fruit/run minigames branch on
   CHAR_ANIM: animated chars draw a villager frame, others draw the grid. `pw/ph`
