@@ -574,8 +574,8 @@ const CHAR_ANIM = {
   andres:   {sheet:'pa_andres',   fw:48, fh:48, frames:4, fps:6, disp:96},
   angelica: {sheet:'pa_angelica', fw:48, fh:48, frames:4, fps:6, disp:94},
   aurora:   {sheet:'pa_aurora',   fw:48, fh:48, frames:4, fps:6, disp:66},
-  gaia:     {sheet:'pa_gaia',     fw:64, fh:34, frames:10, fps:7, disp:50},
-  rubble:   {sheet:'pa_rubble',   fw:64, fh:34, frames:10, fps:7, disp:54}
+  gaia:     {sheet:'pa_gaia',     fw:64, fh:34, frames:10, fps:7, disp:34},
+  rubble:   {sheet:'pa_rubble',   fw:64, fh:34, frames:10, fps:7, disp:38}
 };
 /* Ciclos de CAMINATA reales de los villagers (6 cuadros), recoloreados a la
    familia igual que sus idle. Se usan al correr (Saltá troncos) y al moverse.
@@ -609,8 +609,8 @@ const ACC_ANCHOR = {
    Los perros tienen su casita (de distinto color) + comedero; las personas
    tienen cosas de persona (banca, farol, jardinera). Nadie fuera de lugar. */
 const SCENE = {
-  gaia:    [['doghouse_red',  52, 18, 72], ['bowl', 298, 16, 18], ['bush', 322, 22, 20]],
-  rubble:  [['doghouse_blue', 52, 18, 72], ['bowl', 298, 16, 18], ['rock', 40, 19, 18]],
+  gaia:    [['doghouse_red',  50, 18, 44], ['bowl', 300, 16, 11], ['bush', 322, 22, 20]],
+  rubble:  [['doghouse_blue', 50, 18, 46], ['bowl', 300, 16, 11], ['rock', 40, 19, 18]],
   andres:  [['lamp', 306, 20, 74], ['bush', 40, 22, 22], ['rock', 66, 19, 16]],
   angelica:[['bench', 296, 20, 40], ['planter', 44, 18, 26]],
   aurora:  [['planter', 300, 18, 26], ['bush', 44, 20, 20], ['rock', 322, 18, 15]],
@@ -3596,7 +3596,7 @@ function drawTitle(){
   c.fillStyle = '#53ac8b'; c.fillRect(0,gTop,TW,3);
   /* la familia paseando (loop continuo, hacia la derecha) */
   const feet = TH-7;
-  const cast = [['rubble',0,42],['andres',60,50],['angelica',128,48],['aurora',196,36],['gaia',246,38]];
+  const cast = [['rubble',0,32],['andres',60,50],['angelica',128,48],['aurora',196,36],['gaia',248,28]];
   cast.forEach(([k,off,h])=>{
     const x = ((t*0.55 + off) % (TW+96)) - 48;
     const a = CHAR_WALK[k] || CHAR_ANIM[k];
