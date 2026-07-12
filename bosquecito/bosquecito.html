@@ -579,34 +579,109 @@ const SCENE = {
 };
 /* La bebé Leila vive adentro (su cuartito), el resto en el jardín. */
 const SCENE_TYPE = { leila:'indoor' };
-/* Fondo pintado por personaje (bioma). Si la imagen no cargó (o no hay
-   entrada), se usa la escena procedural con profundidad. Progresión: el
-   bioma puede subir con el nivel de cariño (ver bgKey). */
-const BG_THEME = {
-  andres:  'mountains',   /* montañista */
-  angelica:'meadow',      /* el árbol grande */
-  aurora:  'plains',      /* pradera abierta */
-  gaia:    'forestline',  /* borde del bosque */
-  rubble:  'coast'        /* la costa */
+/* ============ BIOMAS (fondos pintados + escenario) ============
+   Cada bioma define: el color del pasto del PRIMER PLANO (una franja de
+   suelo nuestra que va ENFRENTE del cuadro pintado, para que nadie quede
+   "parado en el agua"), cuánto subir el cuadro (lift, da profundidad), la
+   línea de suelo donde se paran personajes/props (fgTop) y una capa de luz
+   ambiente (amb) para que todo ccombine con la escena (no pegoteado). */
+const FG_TOP = 166;                     /* línea de suelo compartida (px) */
+const BIOME = {
+  meadow:      {fg1:'#5d8d54', fg2:'#39633a', lift:16, amb:null},
+  plains:      {fg1:'#6ba85e', fg2:'#3f6f3a', lift:12, amb:null},
+  mountains:   {fg1:'#5a8150', fg2:'#365a32', lift:22, amb:'rgba(200,215,235,.06)'},
+  forestline:  {fg1:'#4f7a46', fg2:'#2f5430', lift:14, amb:'rgba(120,180,120,.04)'},
+  meadowcloud: {fg1:'#5d8d54', fg2:'#39633a', lift:12, amb:null},
+  cliffs:      {fg1:'#5f8a4e', fg2:'#3b6234', lift:16, amb:'rgba(210,220,235,.05)'},
+  coast:       {fg1:'#6a9a52', fg2:'#40682f', lift:18, amb:'rgba(205,230,245,.05)'},
+  aurora:      {fg1:'#2b4a52', fg2:'#16303a', lift:8,  amb:'rgba(20,40,70,.10)'}
 };
-/* Devuelve la clave de fondo pintado para la escena actual (o null). */
+/* Progresión "las dos": cada personaje tiene su bioma de casa, y ese mundo
+   evoluciona con el nivel de cariño (1-3 · 4-6 · 7-10). */
+const BG_JOURNEY = {
+  andres:  ['forestline','mountains','cliffs'],    /* del valle a la cumbre */
+  angelica:['plains','meadow','meadowcloud'],        /* el jardín florece */
+  aurora:  ['plains','meadow','coast'],              /* el mundo se abre */
+  gaia:    ['forestline','meadow','cliffs'],
+  rubble:  ['plains','forestline','coast']
+};
+/* Clave de bioma actual según personaje + nivel (o null si es interior). */
 function bgKey(){
   if(SCENE_TYPE[cur]==='indoor') return null;
-  return BG_THEME[cur] || null;
+  const j = BG_JOURNEY[cur];
+  if(!j) return null;
+  const lv = (typeof P!=='undefined' && P) ? petLevel(P) : 1;
+  const idx = lv<=3 ? 0 : lv<=6 ? 1 : 2;
+  return j[Math.min(idx, j.length-1)];
 }
-/* Dibuja el fondo pintado a pantalla completa. Devuelve false si no está
-   listo (jsdom/carga) para que el motor caiga a la escena procedural. */
+function curBiome(){ const k = bgKey(); return k ? BIOME[k] : null; }
+/* Cielo nocturno animado: máscara oscura + estrellas + auroras que se mueven.
+   Va SÓLO sobre el cielo (arriba de la línea de suelo), sobre cualquier bioma:
+   así la noche es "una capa que se agrega", como pediste. */
+function drawNightSky(){
+  ctx.fillStyle = 'rgba(10,14,34,.58)'; ctx.fillRect(0, 0, W, FG_TOP+10);   /* máscara del cielo */
+  ctx.fillStyle = '#fff2c8';                                                /* estrellas titilando */
+  for(let i=0;i<22;i++){ const sx=(i*53)%W, sy=(i*29)%(FG_TOP-24); if((frame+i*11)%150<104) ctx.fillRect(sx, sy, 2, 2); }
+  ctx.beginPath(); ctx.arc(W-44, 32, 12, 0, 7); ctx.fillStyle='#fff6ec'; ctx.fill();   /* luna */
+  const cols = ['#6ff0c8', '#7fd0ff', '#b98cff'];                            /* cortinas de aurora */
+  for(let r=0;r<3;r++){
+    ctx.globalAlpha = 0.10 + 0.05*Math.sin(frame/48 + r*1.4);
+    ctx.strokeStyle = cols[r]; ctx.lineWidth = 11 - r*3;
+    ctx.beginPath();
+    for(let x=0;x<=W;x+=8){
+      const y = 26 + r*20 + Math.sin(x/52 + frame/55 + r)*11 + Math.sin(x/21 - frame/80)*4;
+      ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+/* Franja de primer plano (nuestro pasto, ENFRENTE del cuadro) con borde de
+   pasto, sombra de contacto y matas — lo que ya nos gustaba, ahora integrado. */
+function drawFgBand(b, sky){
+  const top = FG_TOP;
+  const g = ctx.createLinearGradient(0, top, 0, H);
+  g.addColorStop(0, b.fg1); g.addColorStop(1, b.fg2);
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.moveTo(0, top+8);
+  for(let x=0;x<=W;x+=6){ ctx.lineTo(x, top + Math.sin(x/9)*2 + (((x/6)|0)%2?0:2)); }  /* borde de pasto */
+  ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(0, top+5, W, 3);            /* sombra bajo el borde */
+  ctx.fillStyle = sky.night ? 'rgba(255,255,255,.03)' : 'rgba(255,255,255,.05)';
+  for(let i=0;i<11;i++) ctx.fillRect((i*41+17)%W, top+16+(i%4)*15, 3, 2);     /* motas */
+  /* matas de pasto agrupadas · más grandes adelante */
+  const tufts = [[40,H-14,1.3],[74,H-11,1.5],[300,H-16,1.1],[326,H-10,1.5]];
+  ctx.strokeStyle = sky.night ? '#2e5238' : b.fg1; ctx.lineWidth = 2;
+  tufts.forEach((t,i)=>{ const [tx,ty,sc]=t;
+    for(let bl=-2;bl<=2;bl++){ const sway=Math.sin(frame/40+i+bl)*2*sc;
+      ctx.beginPath(); ctx.moveTo(tx+bl*3, ty); ctx.lineTo(tx+bl*3+sway, ty-(7+(bl===0?4:0))*sc); ctx.stroke(); }
+  });
+  if(!sky.night){
+    const posies=[[52,H-20],[80,H-16],[296,H-20],[320,H-14]];
+    posies.forEach((p,i)=>{ const fx=p[0],fy=p[1];
+      ctx.fillStyle=i%2?'#f4a7c3':'#e58fb4'; ctx.fillRect(fx,fy,4,4);
+      ctx.fillStyle='#ffdf8e'; ctx.fillRect(fx+1,fy+1,2,2);
+    });
+  }
+}
+/* Capa de luz ambiente (color-grade) — se aplica sobre TODA la escena
+   (incluye personajes y props) para que combinen con el bioma/hora. */
+let _grade = null;
+function applyGrade(){ if(_grade){ ctx.fillStyle=_grade; ctx.fillRect(0,0,W,H); } }
+/* Dibuja el bioma: cuadro pintado (subido) + noche + primer plano. Devuelve
+   false si la imagen no está lista (jsdom) → cae a la escena procedural. */
 function drawSceneBG(sky){
-  let k = bgKey();
+  _grade = null;
+  const k = bgKey();
   if(!k) return false;
-  /* de noche, toda la familia comparte el cielo de auroras (ya es una escena
-     nocturna): más lindo que sólo oscurecer el bioma de día. */
-  if(sky.night) k = 'aurora';
+  const b = BIOME[k];
   const im = (typeof BG_IMG!=='undefined') && BG_IMG[k];
   if(!im || !im.complete || !im.naturalWidth) return false;
-  try{ ctx.drawImage(im, 0, 0, W, H); }catch(e){ return false; }
-  if(sky.night){ ctx.fillStyle = 'rgba(12,16,38,.28)'; ctx.fillRect(0,0,W,H); }         /* asienta el suelo */
-  else if(sky.dusk){ ctx.fillStyle = 'rgba(240,150,90,.14)'; ctx.fillRect(0,0,W,H); }   /* atardecer */
+  try{ ctx.drawImage(im, 0, -b.lift, W, H); }catch(e){ return false; }   /* subido = más profundidad */
+  if(sky.night) drawNightSky();
+  else if(sky.dusk){ ctx.fillStyle='rgba(240,150,90,.10)'; ctx.fillRect(0,0,W,FG_TOP); }
+  drawFgBand(b, sky);
+  _grade = sky.night ? 'rgba(16,22,52,.32)' : sky.dusk ? 'rgba(240,155,95,.12)' : (b.amb || null);
   return true;
 }
 /* Cuartito de bebé: pared + papel tapiz + piso de madera + ventana. */
@@ -1756,6 +1831,7 @@ function draw(){
     _skyGrad.addColorStop(0, sky.top); _skyGrad.addColorStop(1, sky.bot);
   }
   let painted = false;
+  _grade = null;
   if(indoor){ drawRoom(); }
   else if(drawSceneBG(sky)){ painted = true; drawSkyLife(sky); }   /* fondo pintado (bioma) */
   else {
@@ -1878,12 +1954,12 @@ function draw(){
     });
   }
 
-  if(gameMode==='fruit'){ drawFruit(); stepParticles(); return; }
-  if(gameMode==='run'){ drawRun(); stepParticles(); return; }
-  if(gameMode==='memo'){ drawMemo(); stepParticles(); return; }
-  if(gameMode==='bugs'){ drawBugs(); stepParticles(); return; }
-  if(gameMode==='beat'){ drawBeat(); stepParticles(); return; }
-  if(gameMode==='fish'){ drawFish(); stepParticles(); return; }
+  if(gameMode==='fruit'){ drawFruit(); applyGrade(); stepParticles(); return; }
+  if(gameMode==='run'){ drawRun(); applyGrade(); stepParticles(); return; }
+  if(gameMode==='memo'){ drawMemo(); applyGrade(); stepParticles(); return; }
+  if(gameMode==='bugs'){ drawBugs(); applyGrade(); stepParticles(); return; }
+  if(gameMode==='beat'){ drawBeat(); applyGrade(); stepParticles(); return; }
+  if(gameMode==='fish'){ drawFish(); applyGrade(); stepParticles(); return; }
 
   /* popós (con mosquitas si ya llevan rato) */
   P && P.poops.forEach(pp=>{
@@ -2114,6 +2190,7 @@ function draw(){
     ctx.fillStyle = 'rgba(255,246,236,.25)';
     ctx.fill();
   });
+  applyGrade();       /* luz ambiente del bioma sobre toda la escena */
   stepParticles();
 }
 /* Actualiza y dibuja las partículas. Lo usan la escena y los minijuegos, así
