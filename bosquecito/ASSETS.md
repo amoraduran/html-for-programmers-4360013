@@ -85,3 +85,42 @@ splash, star.
 
 When you drop new zips in, I'll auto-extract, montage them for review, embed the winners, and wire
 them up — same pipeline as the food/forest passes.
+
+---
+
+## Detailed review — 2nd asset drop (9 packs)
+
+Rated for fit with Bosquecito (side-view, cozy, family-friendly).
+
+- ⭐ **PetMobile** — BEST pet set. `FreeCats` has idle + **startled reaction** + **sleep (zzz)**
+  animations; also `FreeCats2`, `FreeBunny`, `GoldenRetriver` (10-frame walk), `FreeDemo`. Clean
+  flat+outline, matches the game exactly. This is what makes pets *move/react/express*. 9/10.
+- ✅ **FreeVillagers** — a literal **family**: Old_man, Old_woman, Man, Woman, Boy, Girl. 48×48
+  side-view, idle(4f)+walk(6f)+attack/hurt/death. Maps onto Andrés/Angélica/Aurora/Leila (+2
+  spare). Caveat: **medieval/RPG look** (staffs, tunics) vs a modern CR family. 8/10 animation,
+  6/10 theme.
+- 🟡 **Minifolks** — 9 tiny animated villagers (Gatherer, Merchant, Hunter, Miner, Lumberjack, Nun,
+  Thief…), Blue + outline variants, many frames, + Aseprite sources. Cute but **tiny + top-down +
+  profession-themed** (not a family). 6/10.
+- ✅ **PixelLandsVillage** — yard props: **fences, benches, flower planters, lamp posts, signs,
+  buckets**, a round tree + bush, plus building tiles (walls/roofs/doors) and ground. Cohesive with
+  our pines. Great for a cozy yard (no literal dog house, but fence+planters+bench = a yard).
+- 🟢 **PixelLandsInteriors** — cozy furniture (beds, sofas, tables, chairs, bookshelf, rugs, plants),
+  top-down. A bed = pet bed; useful if we add a home/interior screen.
+- 🟢 **MainCharsHome** — top-down home kit: **animated trees, cat, bird (fly/jump), smoke**, house
+  pieces, animated doors/windows.
+- 🟢 **SuperRetroRanch** (680 files) — huge farm-sim kit: animated farmer chars (32×32 walk/idle/
+  hoe/water), fences, trees, crops, objects, tiles. Retro palette; chars are top-down farm style.
+- ♻️ **FreeAnimalPack** (2nd copy) — same as MegaPack's (GoldenBarking, SleepDog, JumpCat, Pig,
+  Frog, Bird, dog stuffs).
+- 🧩 **ase.7z** — Aseprite source files for Minifolks (editable; PNGs already extracted).
+
+Still ❌ missing: a literal **dog house / kennel**, pixel **coin & heart** UI icons, rice&beans.
+
+### Recommendation
+- **Pets → PetMobile** (expressive cat + golden dog + bunny). Best style + real expressions.
+- **People →** either **FreeVillagers** (animated family, medieval-ish) **or** keep custom + more
+  procedural animation.
+- **Yard → PixelLands** fences/planters/benches (+ optional round tree).
+- Build a **sprite-sheet animation system** and hook states to the pet's mood: sleeping→sleep anim,
+  low stats→sad/react, playing→walk, idle→idle. Reversible per character.
