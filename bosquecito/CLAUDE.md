@@ -96,9 +96,11 @@ Deployed by dragging the file into Vercel.
   swapping eyes/mouth per `faceExpr(mood)` (happy/hungry/tired/dirty/sad/sick);
   `facePortrait(who, mood)` caches a dataURL (wrapped in try/catch so jsdom's
   missing `toDataURL` just yields no image). Portraits render in the tap-to-talk
-  speech bubble (`.facePic` in `.bubbleRow`). First pass is drawn from the owner's
-  text descriptions — refine to true likeness when photos arrive; the whole thing
-  is a set of pixel-rect params, easy to tune.
+  speech bubble (`.facePic` in `.bubbleRow`) and front the select cards. Colours
+  and features are grounded in the family's real photos (warm/tan skin, near-black
+  hair, brown eyes, gold earrings on the women, Andrés's man-bun + undercut +
+  candado beard, Leila's soft baby wisp). The whole thing is pixel-rect params,
+  easy to keep tuning per new reference.
 
 ## Hard rules (do not violate)
 
