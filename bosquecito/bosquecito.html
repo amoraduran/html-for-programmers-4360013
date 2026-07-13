@@ -85,6 +85,8 @@
   }
   #backBtn{font-family:inherit;font-size:12px;background:var(--moss);border:3px solid var(--plum);border-radius:10px;color:var(--gold);cursor:pointer;padding:8px 9px;box-shadow:0 3px 0 var(--plum)}
   #backBtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--plum)}
+  #tbFace{width:30px;height:30px;flex-shrink:0;image-rendering:pixelated;border:3px solid var(--plum);border-radius:9px;background:#fbf1dd}
+  #tbFace:not([src]),#tbFace[src=""]{display:none}
   #tbCenter{flex:1;display:flex;flex-direction:column;gap:4px;min-width:0}
   #tbName{color:var(--gold);text-align:left;line-height:1.5;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   #tbName small{font-size:5px;color:var(--blush);margin-left:4px}
@@ -374,6 +376,7 @@
   <div class="screen" id="s-play">
     <div id="topbar">
       <button id="backBtn" onclick="backToSelect()" aria-label="Cambiar personaje">↩️</button>
+      <img id="tbFace" alt="">
       <div id="tbCenter">
         <div id="tbName">Nombre <small id="tbLvl">Nivel 1 · Conocidos</small></div>
         <div id="xpBar"><i id="xpFill"></i></div>
@@ -1475,9 +1478,13 @@ function heartsFor(v){
   return s;
 }
 let prevHearts = {};
+let _tbFaceKey = '';
 function refreshTop(){
   if(!P) return;
   $('tbName').childNodes[0].nodeValue = SPRITES[cur].name+' ';
+  /* carita viva en la barra: siempre a la vista, refleja el ánimo actual */
+  const fkey = cur+'_'+moodKey();
+  if(_tbFaceKey !== fkey){ _tbFaceKey = fkey; const u = facePortrait(cur, moodKey()); if(u) $('tbFace').src = u; }
   const lv = petLevel(P);
   $('tbLvl').textContent = 'Nv '+lv+' · '+TITLES[lv-1];
   const nxt = XP_LV[Math.min(9,lv)], prv = XP_LV[lv-1];
