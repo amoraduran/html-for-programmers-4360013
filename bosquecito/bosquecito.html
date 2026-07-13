@@ -2897,10 +2897,12 @@ function drawFaceInto(g, who, mood, sc){
   if(baby || F.kind==='girl'){ g.globalAlpha=.5; px(x0+1,16,2,1,'#f2a7ac'); px(x1-3,16,2,1,'#f2a7ac'); g.globalAlpha=1; }
   /* aretes */
   if(F.earrings){ px(x0-1,15,1,1,F.earrings); px(x1,15,1,1,F.earrings); }
-  /* lunares */
-  const mole='#6a4a35';
+  /* lunares (suaves, apenas un toque más oscuro que la piel) */
+  const mole = F.shade;
+  g.globalAlpha = .55;
   if(F.chinMole) px(12, round?19:20, 1, 1, mole);     /* lunar en la barbilla (según el alto del mentón) */
   if(F.cheekMole) px(x0+1,16,1,1,mole);               /* mejilla derecha de ella = izquierda nuestra */
+  g.globalAlpha = 1;
   /* estados */
   if(ex.smudge){ px(x1-3,16,2,1,'#a98a5c'); px(x1-4,17,1,1,'#a98a5c'); }
   if(ex.pale){ g.globalAlpha=.4; px(x0+1,15,2,2,'#9fbf88'); px(x1-3,15,2,2,'#9fbf88'); g.globalAlpha=1; }
