@@ -1019,7 +1019,9 @@ function drawAnimFrame(a, cx, groundY, opts){
 const PAL = {
   K:'#2e2137', S:'#f6c9a0', H:'#4a3524', T:'#4e9e8f',
   P:'#f47fb0', D:'#a07bd8', W:'#fff3e6', B:'#5f7fae', G:'#ffdf8e',
-  F:'#7a4a28', L:'#c9975e', N:'#241812', C:'#f0e6d8', M:'#d9c4a8', f:'#5e3a1e'
+  F:'#7a4a28', L:'#c9975e', N:'#241812', C:'#f0e6d8', M:'#d9c4a8', f:'#5e3a1e',
+  /* bebé Leila: contorno cálido (no negro), piel tibia, ojos grandes, pastel */
+  o:'#7a5340', b:'#e8b892', e:'#3a2e2e', u:'#a9d3ec', w:'#ffffff', p:'#ffb0b8'
 };
 const SPRITES = {
   andres: {name:'Andrés', desc:'papá', rows:[
@@ -1076,23 +1078,25 @@ const SPRITES = {
     ".....KS..SK.....",
     "....KK....KK...."
   ]},
+  /* bebé: cabezota (~mitad del alto), ojos grandes y bajos con brillito, cachetes,
+     dos coletitas con clip, mameluco celeste, sentadita — contorno cálido, no negro */
   leila: {name:'Leila', desc:'casi 1 añito', rows:[
     "................",
-    "......KPKPK.....",
-    ".....KKKKKK.....",
-    "....KSSHHSSK....",
-    "...KSSSSSSSSK...",
-    "...KSKSSSSKSK...",
-    "...KSSSKKSSSK...",
-    "...KSSSSSSSSK...",
-    "....KSSSSSSK....",
-    ".....KKKKKK.....",
-    "....KWWWWWWK....",
-    "...KSWWPPWWSK...",
-    "...KSWWWWWWSK...",
-    "....KWWWWWWK....",
-    "....KWK..KWK....",
-    "................"
+    "....NN....NN....",
+    "....Np....pN....",
+    "...obbbbbbbbo...",
+    "..obbbbbbbbbbo..",
+    "..obbbbbbbbbbo..",
+    "..obwebbbbewbo..",
+    "..obeebbbbeebo..",
+    "..obbppbbppbbo..",
+    "...obbbeebbbo...",
+    "....obbbbbbo....",
+    "....ouuuuuuo....",
+    "...obuuuuuubo...",
+    "...obuuWWuubo...",
+    "....ouuuuuuo....",
+    "....ob....bo...."
   ]},
   rubble: {name:'Rubble', desc:'perro grande 🐶', rows:[
     "...K..KKKKKKKKKKKK..K...",
@@ -1141,9 +1145,9 @@ const SPRITES = {
 };
 const KEYS = ['andres','angelica','aurora','leila','rubble','gaia'];
 // empty rows at bottom of each sprite grid, so they sit on the ground
-const FOOT = {andres:0, angelica:0, aurora:0, leila:1, rubble:0, gaia:2};
+const FOOT = {andres:0, angelica:0, aurora:0, leila:0, rubble:0, gaia:2};
 // posición de los ojos por sprite [col1, col2, fila] para parpadeo y lágrimas
-const EYES = {andres:[5,10,5], angelica:[5,10,5], aurora:[6,9,5], leila:[5,10,5], rubble:[6,15,5,1], gaia:[6,9,4]};
+const EYES = {andres:[5,10,5], angelica:[5,10,5], aurora:[6,9,5], leila:[4,10,6,1], rubble:[6,15,5,1], gaia:[6,9,4]};
 /* Personalidad: multiplicadores de desgaste por stat + descripción.
    >1 = ese stat baja más rápido para ese personaje. */
 const TRAITS = {
@@ -1164,7 +1168,7 @@ function drawSprite(ctx, rows, x, y, s, blink, eye){
       // parpadeo: solo en los píxeles de ojos definidos por sprite
       if(blink && eye && r===eye[2] && ((c>=eye[0]&&c<=eye[0]+(eye[3]||0))||(c>=eye[1]&&c<=eye[1]+(eye[3]||0)))){
         const l=line[c-1], rr=line[c+1];
-        ch = 'SCFMf'.includes(rr) ? rr : ('SCFMf'.includes(l) ? l : ch);
+        ch = 'SCFMfb'.includes(rr) ? rr : ('SCFMfb'.includes(l) ? l : ch);
       }
       ctx.fillStyle = PAL[ch] || '#f00';
       ctx.fillRect(x+c*s, y+r*s, s, s);
