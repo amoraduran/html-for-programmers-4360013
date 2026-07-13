@@ -1,12 +1,15 @@
 {
   "name": "bosquecito",
   "version": "1.0.0",
-  "description": "Bosquecito — virtual pet game (familia del bosque)",
+  "description": "Bosquecito — virtual pet game (familia del bosque). The game is one self-contained file (bosquecito.html); dependencies here exist only so the OPTIONAL cloud-save function under api/ can build on Vercel.",
   "private": true,
   "scripts": {
     "test": "node tests/suite.js"
   },
   "license": "ISC",
+  "dependencies": {
+    "@vercel/kv": "^1.0.1"
+  },
   "devDependencies": {
     "jsdom": "^29.1.1"
   }
