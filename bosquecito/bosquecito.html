@@ -701,7 +701,7 @@ const SCENE = {
   andres:  [['lamp', 306, 20, 74], ['bush', 40, 22, 22], ['rock', 66, 19, 16]],
   angelica:[['bench', 296, 20, 40], ['planter', 44, 18, 26]],
   aurora:  [['planter', 300, 18, 26], ['bush', 44, 20, 20], ['rock', 322, 18, 15]],
-  leila:   [['crib', 300, 18, 54]]
+  leila:   []
 };
 /* La bebé Leila vive adentro (su cuartito), el resto en el jardín. */
 const SCENE_TYPE = { leila:'indoor' };
@@ -959,12 +959,42 @@ function drawRoom(){
   ctx.beginPath(); ctx.ellipse(W/2, floorY+42, 96, 20, 0, 0, 7); ctx.fill();
   ctx.strokeStyle = night?'rgba(200,180,210,.4)':'rgba(226,150,120,.5)'; ctx.lineWidth=2;
   ctx.beginPath(); ctx.ellipse(W/2, floorY+42, 80, 16, 0, 0, 7); ctx.stroke();
+  /* ---- la cunita (dibujada, integrada al cuarto) ---- */
+  drawCrib(night);
   /* ---- luz nocturna cálida junto a la cuna ---- */
   if(night){
     const gx=286, gy=H-52;
     for(let r=28;r>0;r-=6){ ctx.globalAlpha=0.05; ctx.fillStyle='#ffdf8e'; ctx.beginPath(); ctx.arc(gx,gy,r,0,7); ctx.fill(); }
     ctx.globalAlpha=1; ctx.fillStyle='#ffdf8e'; ctx.fillRect(gx-2,gy-2,4,5); ctx.fillStyle='#fff6ec'; ctx.fillRect(gx-1,gy-1,2,2);
   }
+}
+/* Cunita de bebé dibujada (madera + barrotes + colchón/cobija + peluche que
+   asoma), en la misma paleta del cuarto — nada de sprites pegados. */
+function drawCrib(night){
+  const floorY = H-86, bx = 250, bw = 64, top = floorY-4, bot = floorY+56;
+  const wood = night?'#7a5f45':'#b98a5e', woodD = night?'#5a4433':'#8a6543', woodL = night?'#8f6f4c':'#cfa476';
+  const iX = bx+6, iW = bw-12;
+  /* interior: colchón + cobija + almohada + peluche (se ve entre los barrotes) */
+  ctx.fillStyle = night?'#5a4b52':'#efe1cd'; ctx.fillRect(iX, floorY+6, iW, 44);
+  ctx.fillStyle = night?'#6a5a60':'#f7ede0'; ctx.fillRect(iX, floorY+30, iW, 20);         /* colchón */
+  ctx.fillStyle = night?'#6d8ba0':'#a9d3ec'; ctx.fillRect(iX, floorY+38, iW, 12);          /* cobija */
+  ctx.fillStyle = night?'#5a7488':'#8fbfe0'; ctx.fillRect(iX, floorY+41, iW, 2);
+  ctx.fillStyle = night?'#c9bdb0':'#fff6ec'; ctx.fillRect(iX+2, floorY+31, 14, 8);          /* almohada */
+  ctx.fillStyle = night?'#9a7a50':'#caa06a';                                                /* peluche */
+  ctx.fillRect(iX+iW-14, floorY+28, 3,4); ctx.fillRect(iX+iW-7, floorY+28, 3,4);
+  ctx.beginPath(); ctx.arc(iX+iW-9, floorY+34, 5,0,7); ctx.fill();
+  ctx.fillStyle='#3a2e2e'; ctx.fillRect(iX+iW-11, floorY+33,1,1); ctx.fillRect(iX+iW-8, floorY+33,1,1);
+  /* barrotes verticales (frente, altura completa) */
+  for(let x=bx+9; x<bx+bw-8; x+=8){ ctx.fillStyle=wood; ctx.fillRect(x, top+4, 3, bot-top-8); ctx.fillStyle=woodL; ctx.fillRect(x, top+4, 1, bot-top-8); }
+  /* rieles superior e inferior */
+  ctx.fillStyle=wood; ctx.fillRect(bx, top, bw, 5); ctx.fillStyle=woodL; ctx.fillRect(bx, top, bw, 1);
+  ctx.fillStyle=wood; ctx.fillRect(bx, bot-4, bw, 5);
+  /* postes con finiales (bolitas) */
+  ctx.fillStyle=wood; ctx.fillRect(bx-1, top-6, 6, bot-top+12); ctx.fillRect(bx+bw-5, top-6, 6, bot-top+12);
+  ctx.fillStyle=woodD; ctx.fillRect(bx+3, top-6, 2, bot-top+12); ctx.fillRect(bx+bw-1, top-6, 2, bot-top+12);
+  ctx.fillStyle=woodL; ctx.beginPath(); ctx.arc(bx+2, top-7, 4,0,7); ctx.fill(); ctx.beginPath(); ctx.arc(bx+bw+1, top-7, 4,0,7); ctx.fill();
+  /* patitas */
+  ctx.fillStyle=woodD; ctx.fillRect(bx+2, bot+1, 5, 6); ctx.fillRect(bx+bw-6, bot+1, 5, 6);
 }
 /* Dibuja el cuadro actual de una animación, centrado horizontalmente en cx con
    la base en groundY. El contexto ya puede venir transformado (squash/wag). */
