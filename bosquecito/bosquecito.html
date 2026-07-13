@@ -1862,8 +1862,8 @@ function feed(k){
   if(dropFood){ toast('Primero la otra comidita 😄'); return; }
   G.inv[k]--;
   closePanels();
-  dropFood = { k, e:f.e, x: W-46, y: 52, held:false, t:0, auto:360 };
-  hint('drag_food', 'Arrastrá la comidita hasta su boquita 🍎👉');
+  dropFood = { k, e:f.e, x: W-46, y: 52, held:false, t:0, auto:240 };
+  hint('drag_food', 'Arrastrá la comidita a su boquita (o tocá al personaje) 🍎👉');
   sfx('sel');
   saveAll(); refreshTop();
 }
@@ -3274,11 +3274,13 @@ cv.addEventListener('pointerdown', ev=>{
       return;
     }
   }
-  /* comidita suelta */
-  if(dropFood && Math.hypot(pt.x-dropFood.x, pt.y-dropFood.y) < 26){
-    dropFood.held = true;
-    sfx('sel');
-    return;
+  /* comidita suelta: agarrala para arrastrarla, o tocá a la bebé/al personaje
+     para que se la lleve solito a la boca (arrastrar es opcional) */
+  if(dropFood){
+    if(Math.hypot(pt.x-dropFood.x, pt.y-dropFood.y) < 32){
+      dropFood.held = true; sfx('sel'); return;
+    }
+    if(inCharBox(pt.x, pt.y, 20)){ dropFood.auto = 0; sfx('sel'); return; }
   }
   if(P.trav && inCharBox(pt.x, pt.y, 16)){
     P.trav = null;
@@ -3416,10 +3418,12 @@ function releaseFood(){
   if(!dropFood || !dropFood.held) return;
   dropFood.held = false;
   const mx = charBox.x + charBox.w/2, my = charBox.y + charBox.h*0.42;
-  if(Math.hypot(dropFood.x-mx, dropFood.y-my) < charBox.w*0.6+14){
+  if(Math.hypot(dropFood.x-mx, dropFood.y-my) < charBox.w*0.6+16){
     const k = dropFood.k;
     dropFood = null;
     applyFood(k);
+  } else {
+    dropFood.auto = 0;   /* la soltaste en cualquier lado (o fue un toquecito): se la lleva solita a la boca */
   }
 }
 function endPointer(){
@@ -3733,7 +3737,7 @@ function drawRun(){
   ctx.translate(cx, H-20-run.oy-runBob);
   ctx.scale(1/Math.sqrt(stretch), stretch);
   if(rAnim){
-    const wf = reduceMotion ? 0 : Math.floor(run.scroll/5) % rAnim.frames;
+    const wf = reduceMotion ? 0 : Math.floor(run.scroll/11) % rAnim.frames;   /* cadencia de trote (no atada 1:1 al scroll = piernas menos frenéticas) */
     const fr = rAir ? Math.min(3, rAnim.frames-1) : wf;   /* zancada de salto */
     drawAnimFrame(rAnim, 0, 0, {h: Math.round(rAnim.disp*2/3), frame: fr});
   }
