@@ -234,7 +234,17 @@ step("backdrop closes sheet", ()=> {
   $('p-shop').dispatchEvent(new w.PointerEvent('pointerdown', {bubbles:true}));
   if($('p-shop').className.includes('open')) throw 0;
 });
-step("grabbers present", ()=> { if(w.document.querySelectorAll('.grabber').length !== 6) throw 0; });
+step("grabbers present", ()=> { if(w.document.querySelectorAll('.grabber').length !== 7) throw 0; });
+step("save export/import round-trips", ()=> {
+  w.localStorage.setItem('bosquecito_test', JSON.stringify({hi:42}));
+  const code = w.exportSave();
+  if(!code || code.indexOf('BQ1-')!==0) throw new Error('no code');
+  w.localStorage.removeItem('bosquecito_test');
+  const data = w.parseSave(code);
+  if(!data || !w.applySaveObj(data)) throw new Error('parse/apply');
+  if(w.localStorage.getItem('bosquecito_test') !== JSON.stringify({hi:42})) throw new Error('not restored');
+  if(w.parseSave('garbage') !== null) throw new Error('bad code accepted');
+});
 step("sleep disables dock", ()=> {
   w.sleepToggle();
   if(!w.document.querySelector('.dk-food').className.includes('zz')) throw 0;
@@ -357,6 +367,6 @@ step("result replay restarts game", ()=> {
 });
 
 setTimeout(()=>{
-  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 51 TESTS PASSED");
+  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 52 TESTS PASSED");
   process.exit(errors.length?1:0);
 }, 700);
