@@ -2814,12 +2814,12 @@ function drawFaceInto(g, who, mood, sc){
     px(x0,10,1,4,F.beard); px(x1-1,10,1,4,F.beard);   /* fade: rapado cortito (sombra) bajando */
     px(10,0,4,4,F.hair); px(9,1,1,3,F.hair); px(14,1,1,3,F.hair); /* el moño ALTO y ancho (característico) */
     px(11,0,2,1,F.hairHi); px(x0+2,5,3,1,F.hairHi);   /* brillo del pelo/moño */
-  } else if(F.babyHair){                              /* Leila: pelusita + dos coletitas con clip */
-    px(8,0,2,3,F.hair); px(14,0,2,3,F.hair);          /* dos coletitas paraditas */
-    px(8,0,1,1,'#f2a7c3'); px(15,0,1,1,'#f2a7c3');    /* florecitas/clips */
-    px(10,2,4,1,F.hair); px(9,3,6,1,F.hair);          /* pelito central (deja ver la frente) */
-    px(9,4,1,1,F.hair); px(14,4,1,1,F.hair);          /* pelitos sueltos */
-    px(10,2,2,1,F.hairHi);                            /* brillito */
+  } else if(F.babyHair){                              /* Leila: capa suave PEGADA a la cabeza + dos coletitas */
+    px(9,4,6,1,F.hair);                               /* capa que toca la cabecita (y4, junto a la frente y5) */
+    px(9,3,6,1,F.hair); px(10,2,4,1,F.hair);          /* pelito, se redondea arriba */
+    px(10,0,1,2,F.hair); px(13,0,1,2,F.hair);         /* dos coletitas paraditas (nacen del pelo) */
+    px(9,2,1,1,'#f2a7c3'); px(14,2,1,1,'#f2a7c3');    /* florecitas/clips a los lados */
+    px(10,3,3,1,F.hairHi);                            /* brillito */
   } else if(F.pigtails){                              /* Aurora: dos coletas (se ve más niña) */
     px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
     px(x0,4,x1-x0,3,F.hair);                           /* pelo arriba */
@@ -2839,9 +2839,8 @@ function drawFaceInto(g, who, mood, sc){
     px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo sobre la frente */
     px(x0-1,7,2,6,F.hair); px(x1-1,7,2,6,F.hair);      /* lados enmarcando (más) */
     const btm2 = 19 + (F.longHair||0);
-    px(x0-1,8,1,btm2-9,F.hairHi);                      /* mechón de luz (izq) */
-    px(x1,9,1,btm2-11,F.hairHi);                       /* reflejo lateral (der) */
-    px(x0+3,10,1,btm2-12,F.shade);                     /* hebra oscura (textura) */
+    px(x0-1,8,1,btm2-9,F.hairHi);                      /* mechón de luz en el pelo (izq) */
+    px(x1,9,1,btm2-11,F.hairHi);                       /* reflejo lateral en el pelo (der) */
     px(x0+2,4,3,1,F.hairHi); px(x0+1,5,2,1,F.hairHi); /* brillo arriba */
   }
   /* cejas (más gruesas en él, finitas en ellas) */
