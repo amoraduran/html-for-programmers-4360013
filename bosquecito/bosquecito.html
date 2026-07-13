@@ -2991,8 +2991,8 @@ const FACE = {
             longHair:2, earrings:'#e8c25c', chinMole:true, iris:'#3f2913', lips:'#b5566b'},
   aurora:  {kind:'girl',  skin:'#dda877', shade:'#c48c5c', hair:'#231a11', hairHi:'#42301e', brow:'#1c140c',
             pigtails:true, earrings:'#f0cf5a', cheekMole:true, chinMole:true, iris:'#4a3016', lips:'#c46a72'},
-  leila:   {kind:'baby',  skin:'#e4ac7d', shade:'#cf9868', hair:'#231a11', hairHi:'#42301e', brow:'#2a1d12',
-            babyHair:true, chinMole:true, iris:'#3f2913', lips:'#c77a6a'},
+  leila:   {kind:'baby',  skin:'#f0c197', shade:'#dba677', hair:'#2b2320', hairHi:'#4a3b34', brow:'#332822',
+            babyHair:true, bow:'#f074a6', chinMole:true, iris:'#3a2016', lips:'#cd7f70'},
   rubble:  {dog:'boxer',    coat:'#ece0cf', shade:'#d6c4a8', patch:'#7a5233', muzzle:'#d8c3a5', nose:'#2e2137'},
   gaia:    {dog:'weiner',   coat:'#5a3a24', shade:'#482d1b', ear:'#3f281a', muzzle:'#6e4a30', grey:'#9a8a7a', nose:'#2e2137'}
 };
@@ -3045,13 +3045,17 @@ function drawFaceInto(g, who, mood, sc){
     px(x0,10,1,4,F.beard); px(x1-1,10,1,4,F.beard);   /* fade: rapado cortito (sombra) bajando */
     px(10,0,4,4,F.hair); px(9,1,1,3,F.hair); px(14,1,1,3,F.hair); /* el moño ALTO y ancho (característico) */
     px(11,0,2,1,F.hairHi); px(x0+2,5,3,1,F.hairHi);   /* brillo del pelo/moño */
-  } else if(F.babyHair){                              /* Leila: pelo ralo que NACE de la coronilla (no gorro) */
-    px(9,5,6,1,F.hair);                               /* el pelo nace del tope de la cabecita (sobre y5) */
-    px(10,6,4,1,F.hair);                              /* flequillito ralo hacia la frente */
+  } else if(F.babyHair){                              /* Leila: pelo de bebé (corona llenita) + moñito rosado */
+    px(8,5,8,1,F.hair);                               /* corona más llena que nace del tope */
+    px(9,6,6,1,F.hair);                               /* flequillito hacia la frente */
     px(8,6,2,1,F.hair); px(14,6,2,1,F.hair);          /* sienes (deja ver la frente al medio) */
-    px(9,3,2,2,F.hair); px(13,3,2,2,F.hair);          /* dos coletitas que nacen de la corona (conectan en y5) */
-    px(9,3,1,1,'#f2a7c3'); px(14,3,1,1,'#f2a7c3');    /* florecitas/clips */
-    px(10,5,3,1,F.hairHi);                            /* brillito en la corona */
+    px(9,3,3,2,F.hair); px(12,3,3,2,F.hair);          /* mechoncitos parados arriba (como el sprite) */
+    px(10,4,4,1,F.hair);                              /* un poco más de pelo arriba */
+    px(11,4,2,1,F.hairHi); px(10,5,3,1,F.hairHi);     /* brillito en la corona */
+    /* moñito rosado a un lado (nena, igual que el avatar) */
+    const bw = F.bow||'#f074a6';
+    px(15,3,1,2,bw); px(16,3,1,2,'#f8a6c8');
+    px(15,4,2,1,'#cf4f82');                            /* nudito del moño */
   } else if(F.pigtails){                              /* Aurora: dos coletas (se ve más niña) */
     px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
     px(x0,4,x1-x0,3,F.hair);                           /* pelo arriba */
