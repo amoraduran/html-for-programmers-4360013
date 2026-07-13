@@ -197,7 +197,9 @@
     animation:lvlIn .4s cubic-bezier(.2,1.6,.4,1);
   }
   @keyframes lvlIn{from{transform:scale(.4) rotate(-4deg);opacity:0}to{transform:none;opacity:1}}
-  #lvlBig{font-size:30px;animation:alertBounce .8s ease-in-out infinite}
+  #lvlBig{font-size:30px;animation:alertBounce .8s ease-in-out infinite;position:relative;display:inline-block}
+  #lvlBig .lvlFace{width:72px;height:72px;image-rendering:pixelated;border:4px solid var(--plum);border-radius:14px;background:#fbf1dd;display:block}
+  #lvlBig .lvlSpark{position:absolute;top:-8px;right:-10px;font-size:18px}
   #lvlTitle{font-size:13px;color:var(--plum);margin-top:8px}
   #lvlSub{font-size:7px;color:#a06a90;margin-top:7px}
   /* tarjeta de bienvenida / meta (primera vez) */
@@ -1516,7 +1518,8 @@ function addXP(n){
     shake();
     vib([25,50,25,50,40]);
     burst(170, 90, 26);
-    $('lvlBig').textContent = '💕';
+    const lvFace = facePortrait(cur, 'happy');
+    $('lvlBig').innerHTML = lvFace ? '<img class="lvlFace" src="'+lvFace+'" alt=""><span class="lvlSpark">✨</span>' : '💕';
     $('lvlTitle').textContent = '¡NIVEL '+after+'!';
     $('lvlSub').textContent = TITLES[after-1];
     $('lvlOverlay').classList.add('show');
