@@ -2646,7 +2646,7 @@ function draw(){
       if(flinch){ drawAnimFrame(CHAR_HURT[cur], 0, 0, {frame:1}); }          /* encogido: malito/mareado */
       else if(leilaSpecial){ drawAnimFrame(leilaSpecial, 0, 0, {}); }        /* bebé: mamila / popó */
       else if(walking && CHAR_WALK[cur]){ drawAnimFrame(CHAR_WALK[cur], 0, 0, {flip: walkDir<0}); }
-      else { drawAnimFrame(anim, 0, 0, {flip: isDog && walking && walkDir<0}); }   /* perro camina = su anim + flip */
+      else { drawAnimFrame(anim, 0, 0, {flip: isDog && walkDir<0, frame: P.sleeping ? 0 : undefined}); }   /* perro quieto conserva hacia dónde miraba; dormido = cuadro fijo */
     }
     else { drawSprite(ctx, rows, px - (W/2+gx), py - baseY, size, blinking||P.sleeping, EYES[cur]); }
     ctx.restore();
