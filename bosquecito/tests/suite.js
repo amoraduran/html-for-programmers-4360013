@@ -245,6 +245,22 @@ step("save export/import round-trips", ()=> {
   if(w.localStorage.getItem('bosquecito_test') !== JSON.stringify({hi:42})) throw new Error('not restored');
   if(w.parseSave('garbage') !== null) throw new Error('bad code accepted');
 });
+step("cloud sync off by default, wires when enabled", ()=> {
+  if(w.cloudEnabled()) throw new Error('should be off by default');
+  w.BOSQUECITO_SYNC_URL = '/api/save';
+  if(!w.cloudEnabled()) throw new Error('not enabled after config');
+  let posted=null;
+  w.fetch = (url,opts)=>{ posted={url,opts}; return Promise.resolve({ok:true, json:()=>Promise.resolve({})}); };
+  w.cloudPush();
+  const body = JSON.parse(posted.opts.body);
+  if(posted.url!=='/api/save' || posted.opts.method!=='POST') throw new Error('bad push');
+  if(!/^BOSQUE-[A-Z0-9]+$/.test(body.code) || body.data.indexOf('BQ1-')!==0) throw new Error('bad push body');
+  let got=null;
+  w.fetch = (url)=>{ got=url; return Promise.resolve({ok:true, json:()=>Promise.resolve({data:null})}); };
+  w.cloudPull('bosque-abcde');
+  if(got.indexOf('code=BOSQUE-ABCDE')<0) throw new Error('bad pull url');
+  w.BOSQUECITO_SYNC_URL = '';   // reset so later tests see it off
+});
 step("sleep disables dock", ()=> {
   w.sleepToggle();
   if(!w.document.querySelector('.dk-food').className.includes('zz')) throw 0;
@@ -367,6 +383,6 @@ step("result replay restarts game", ()=> {
 });
 
 setTimeout(()=>{
-  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 52 TESTS PASSED");
+  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 53 TESTS PASSED");
   process.exit(errors.length?1:0);
 }, 700);
