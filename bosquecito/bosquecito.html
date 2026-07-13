@@ -69,6 +69,7 @@
   }
   .charCard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--plum)}
   .charCard canvas{width:64px;height:64px;image-rendering:pixelated}
+  .charCard .cardFace{width:58px;height:58px;image-rendering:pixelated;border-radius:12px;background:#fbf1dd;border:2px solid var(--plum)}
   .charCard .cname{font-size:7px;color:var(--gold)}
   .charCard .ctip{font-size:5px;color:var(--blush);line-height:1.6}
   .charCard .clvl{font-size:5px;color:var(--cream)}
@@ -1332,6 +1333,14 @@ function peekStatus(k, saved){
   if(Math.min(ham,ale,ene,hig) <= 45) return {badge:'🥺 pensá en él', urgent:false};
   return {badge:'😊 feliz', urgent:false};
 }
+/* ánimo aproximado de un guardado (para la carita de la tarjeta de selección) */
+function savedMoodOf(saved){
+  if(!saved) return 'happy';
+  if(saved.sick) return 'sick';
+  const m = [['hungry',saved.ham],['sad',saved.ale],['tired',saved.ene],['dirty',saved.hig]]
+    .filter(x=>x[1]<30).sort((a,b)=>a[1]-b[1])[0];
+  return m ? m[0] : 'happy';
+}
 function buildSelect(){
   const sb = $('streakBadge');
   if(G && G.streak > 1){ sb.innerHTML = '🔥 racha de '+G.streak+' días · seguí viniendo 🌷'; sb.classList.add('show'); }
@@ -1353,14 +1362,16 @@ function buildSelect(){
     const card = document.createElement('div');
     card.className = 'charCard' + (st.urgent ? ' urge' : '');
     card.style.background = 'linear-gradient(160deg, '+biomeColorFor(k, lv)+'40, var(--moss) 68%)';
-    card.innerHTML = '<canvas width="34" height="34"></canvas>'+
+    const face = facePortrait(k, savedMoodOf(saved));
+    const avatar = face ? '<img class="cardFace" src="'+face+'" alt="">' : '<canvas width="34" height="34"></canvas>';
+    card.innerHTML = avatar+
       '<span class="cname">'+SPRITES[k].name+'</span>'+
       '<span class="ctip">'+TRAITS[k].tip+'</span>'+
       '<span class="cbadge'+(st.urgent?' bad':'')+'">'+st.badge+'</span>'+
       '<span class="clvl">'+(lv? '💕 nivel '+lv : '')+'</span>';
     card.onclick = ()=>{ pick(k); };
     g.appendChild(card);
-    drawMini(card.querySelector('canvas'), k);
+    if(!face) drawMini(card.querySelector('canvas'), k);
   });
 }
 function pick(k){
@@ -2774,50 +2785,53 @@ function drawFaceInto(g, who, mood, sc){
   /* ---- persona ---- */
   const baby = F.kind==='baby';
   const x0 = baby?5:6, x1 = baby?19:18;              /* cara un poquito más ancha en la bebé */
-  /* pelo largo detrás (mujeres/niñas) */
+  /* pelo largo detrás (mujeres/niñas) — enmarca y cae a los lados */
   if(F.longHair){
     const btm = 19 + F.longHair;                     /* qué tan largo cae */
-    px(x0-1, 6, 2, btm-6, F.hair); px(x1-1, 6, 2, btm-6, F.hair);
+    px(x0-2, 6, 3, btm-6, F.hair); px(x1-1, 6, 3, btm-6, F.hair);
     px(x0-1, btm-1, x1-x0+2, 1, F.hair);
   }
-  /* piel de la cara (óvalo por filas) */
-  const rows = [[7,x0+1,x1-1],[6,x0,x1],[5,x0,x1],[4,x0,x1],[3,x0+1,x1-1]]; /* arriba redondeado */
-  px(x0, 6, x1-x0, 15, F.skin);                       /* bloque principal */
-  px(x0+1, 5, x1-x0-2, 1, F.skin);
-  px(x0+1, 21, x1-x0-2, 1, F.skin);                   /* barbilla */
-  px(x0+2, 22, x1-x0-4, 1, F.skin);
-  px(x0-1, 12, 1, 3, F.skin); px(x1, 12, 1, 3, F.skin); /* orejitas */
-  px(x0+2, 20, x1-x0-4, 1, F.shade);                  /* sombra bajo la cara */
-  /* pelo arriba */
-  if(F.bun){                                          /* Andrés: moño + rapado a los lados */
-    px(9,2,6,1,F.hair); px(8,3,8,2,F.hair);           /* copete central corto */
-    px(10,0,4,2,F.hair); px(11,-1,2,1,F.hair);        /* el moño arriba */
-    px(x0,6,1,4,F.shade); px(x1-1,6,1,4,F.shade);     /* sien rapada (sombra) */
+  /* piel: óvalo con mejillas redondas y mentón afinado (menos cuadrado) */
+  const shape = baby
+    ? [[5,4],[6,3],[7,1],[8,1],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,1],[18,1],[19,2],[20,3]]
+    : [[5,4],[6,2],[7,1],[8,1],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,1],[17,1],[18,2],[19,3],[20,4],[21,5]];
+  shape.forEach(([y,ins])=> px(x0+ins, y, (x1-x0)-2*ins, 1, F.skin));
+  px(x0-1, 12, 1, 3, F.skin); px(x1, 12, 1, 3, F.skin);   /* orejitas */
+  px(x0+1, 17, 1, 2, F.shade); px(x1-2, 17, 1, 2, F.shade); /* volumen en mejillas */
+  /* pelo arriba (copa redondeada, sin filo cuadrado) */
+  if(F.bun){                                          /* Andrés: moño + sienes con pelo cortito (fade) */
+    px(x0-1,6,2,8,F.hair); px(x1-1,6,2,8,F.hair);     /* pelo bajando por las sienes (más) */
+    px(x0+2,4,(x1-x0)-4,1,F.hair);                    /* copa redondeada */
+    px(x0,5,x1-x0,2,F.hair);                           /* copete */
+    px(10,1,4,2,F.hair); px(11,0,2,1,F.hair);         /* el moño arriba */
+    px(x0-1,14,1,2,F.beard); px(x1,14,1,2,F.beard);   /* patillita hacia la barba */
   } else if(F.babyHair){
-    px(9,3,6,2,F.hair); px(10,2,4,1,F.hair);          /* mechoncito */
+    px(9,2,6,1,F.hair); px(8,3,8,2,F.hair);           /* mechoncito redondeado */
   } else {                                            /* mujeres/niñas: melena con flequillo */
-    px(x0,3,x1-x0,4,F.hair); px(x0+1,2,x1-x0-2,1,F.hair);
+    px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
+    px(x0,4,x1-x0,3,F.hair);                           /* cuerpo del pelo */
     px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo sobre la frente */
-    px(x0-1,7,2,4,F.hair); px(x1-1,7,2,4,F.hair);      /* lados enmarcando */
+    px(x0-1,7,2,6,F.hair); px(x1-1,7,2,6,F.hair);      /* lados enmarcando (más) */
   }
   /* cejas (más gruesas en él, finitas en ellas) */
   const bw = F.beard?3:2;
   px(x0+2,10,bw,1,F.brow); px(x1-2-bw,10,bw,1,F.brow);
-  /* ojos rasgados (almendrados: rabillo hacia arriba y afuera) */
-  const lx=x0+2, rx=x1-4;
-  if(ex.eyes==='happy'){                              /* ojos de sonrisa ^^ */
-    px(lx,12,1,1,eyeC); px(lx+1,11,1,1,eyeC); px(lx+2,12,1,1,eyeC);
-    px(rx,12,1,1,eyeC); px(rx+1,11,1,1,eyeC); px(rx+2,12,1,1,eyeC);
-  } else if(ex.eyes==='half'){                        /* entrecerrados */
-    px(lx,12,3,1,eyeC); px(rx,12,3,1,eyeC);
-    px(lx,11,3,1,F.shade); px(rx,11,3,1,F.shade);
-  } else if(ex.eyes==='sad'){                         /* caídos */
-    px(lx,12,3,1,eyeC); px(lx,13,1,1,eyeC);
-    px(rx,12,3,1,eyeC); px(rx+2,13,1,1,eyeC);
-  } else {                                            /* abiertos, almendrados */
-    px(lx,12,3,1,eyeC); px(lx-1,11,1,1,eyeC);
-    px(rx,12,3,1,eyeC); px(rx+3,11,1,1,eyeC);
+  /* ojos rasgados con brillo (iris con color + destello) */
+  const lx=x0+2, rx=x1-4, irisC = F.iris || '#7a4f2a';
+  function drawEye(ox, dir){
+    if(ex.eyes==='half'){ px(ox,12,3,1,eyeC); px(ox,11,3,1,F.shade); return; }
+    if(ex.eyes==='sad'){
+      px(ox,12,3,1,irisC); px(ox,13,3,1,eyeC);
+      px(ox+(dir<0?-1:3),13,1,1,eyeC);              /* rabillo caído */
+      px(ox+(dir<0?0:2),14,1,1,'#8fd0e6');          /* lagrimita */
+      return;
+    }
+    px(ox,12,3,1,irisC);                            /* iris con color */
+    px(ox,13,3,1,eyeC);                             /* base oscura (pupila/pestaña) */
+    px(ox+(dir<0?0:2),12,1,1,'#ffffff');            /* brillito ✨ */
+    px(ox+(dir<0?-1:3),12,1,1,eyeC);                /* rabillo almendrado hacia afuera */
   }
+  drawEye(lx,-1); drawEye(rx,1);
   /* naricita */
   px(11,15,1,1,F.shade); px(12,15,1,1,F.shade);
   /* barba candado de Andrés (bigote + barbilla + patillita) */
@@ -2851,24 +2865,27 @@ function drawDogFace(px, F, ex){
   const eyeC = F.nose;
   if(F.dog==='weiner'){                               /* Gaia: salchicha chocolate, orejas largas */
     px(2,7,3,11,F.ear); px(19,7,3,11,F.ear);          /* orejotas caídas */
-    px(6,6,12,14,F.coat);                             /* cabeza */
-    px(7,5,10,1,F.coat); px(7,20,10,1,F.coat);
+    px(8,5,8,1,F.coat); px(7,6,10,1,F.coat);          /* copa redondeada */
+    px(6,7,12,13,F.coat); px(7,20,10,1,F.coat);       /* cabeza */
     px(8,15,8,5,F.muzzle);                            /* hocico */
     px(9,10,2,1,F.grey); px(13,10,2,1,F.grey);        /* canitas (viejita) */
     px(10,17,4,2,F.nose); px(11,19,2,1,F.nose);       /* nariz */
   } else {                                            /* Rubble: boxer crema */
     px(3,6,3,6,F.shade); px(18,6,3,6,F.shade);        /* orejas */
-    px(5,6,14,14,F.coat);                             /* cabeza cuadrada */
-    px(6,5,12,1,F.coat); px(6,20,12,1,F.coat);
+    px(7,5,10,1,F.coat); px(6,6,12,1,F.coat);         /* copa redondeada */
+    px(5,7,14,12,F.coat); px(6,19,12,1,F.coat); px(7,20,10,1,F.coat);
     px(6,9,5,5,F.patch);                              /* mancha marrón sobre un ojo */
     px(8,15,8,5,F.muzzle);                            /* hocico */
     px(10,16,4,2,F.nose);                             /* nariz */
   }
-  /* ojos según ánimo */
+  /* ojos según ánimo (con brillito) */
   const lx=8, rx=14;
   if(ex.eyes==='half'){ px(lx,12,2,1,eyeC); px(rx,12,2,1,eyeC); }
   else if(ex.eyes==='sad'){ px(lx,13,2,1,eyeC); px(rx,13,2,1,eyeC); }
-  else { px(lx,11,2,2,eyeC); px(rx,11,2,2,eyeC); }
+  else {
+    px(lx,11,2,2,eyeC); px(rx,11,2,2,eyeC);
+    px(lx,11,1,1,'#ffffff'); px(rx,11,1,1,'#ffffff');   /* destello en los ojos */
+  }
   /* boca / lengua */
   if(ex.mouth==='smile'){ px(10,20,1,1,eyeC); px(11,21,3,1,'#e78aa0'); }   /* lengüita feliz */
   else if(ex.mouth==='frown'){ px(10,20,4,1,eyeC); px(9,19,1,1,eyeC); px(14,19,1,1,eyeC); }
