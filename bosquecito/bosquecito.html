@@ -2806,23 +2806,29 @@ function drawFaceInto(g, who, mood, sc){
   g.globalAlpha = 1;
   px(x0+1, 17, 1, 2, F.shade); px(x1-2, 17, 1, 2, F.shade); /* mejillas */
   /* pelo arriba (copa redondeada, sin filo cuadrado) */
-  if(F.bun){                                          /* Andrés: moño + sienes con pelo cortito (fade) */
-    px(x0-1,6,2,8,F.hair); px(x1-1,6,2,8,F.hair);     /* pelo bajando por las sienes (más) */
+  if(F.bun){                                          /* Andrés: man bun + sienes rapadas (undercut/fade) */
     px(x0+2,4,(x1-x0)-4,1,F.hair);                    /* copa redondeada */
-    px(x0,5,x1-x0,2,F.hair);                           /* copete */
+    px(x0,5,x1-x0,2,F.hair);                           /* pelo de arriba (recogido) */
+    px(x0-1,6,2,4,F.hair); px(x1-1,6,2,4,F.hair);     /* sienes con pelo (arriba) */
+    px(x0,10,1,4,F.beard); px(x1-1,10,1,4,F.beard);   /* fade: rapado cortito (sombra) bajando */
     px(10,1,4,2,F.hair); px(11,0,2,1,F.hair);         /* el moño arriba */
-    px(x0-1,14,1,2,F.beard); px(x1,14,1,2,F.beard);   /* patillita hacia la barba */
-    px(x0+2,5,3,1,F.hairHi); px(11,1,2,1,F.hairHi);   /* brillo del pelo */
-  } else if(F.babyHair){
-    px(9,2,6,1,F.hair); px(8,3,8,2,F.hair);           /* mechoncito redondeado */
-    px(9,3,3,1,F.hairHi);                             /* brillito */
-  } else {                                            /* mujeres/niñas: melena con flequillo */
+    px(11,0,2,1,F.hairHi); px(x0+2,5,3,1,F.hairHi);   /* brillo del pelo/moño */
+  } else if(F.babyHair){                              /* Leila: pelusita suave (NO gorro) */
+    px(11,1,2,1,F.hair);                              /* ricito que se levanta */
+    px(10,2,4,1,F.hair);                              /* patchecito central */
+    px(9,3,2,1,F.hair); px(13,3,2,1,F.hair);          /* mechones ralos a los lados (deja ver la frente) */
+    px(8,4,1,1,F.hair); px(15,4,1,1,F.hair);          /* pelitos sueltos */
+    px(11,1,1,1,F.hairHi); px(10,2,2,1,F.hairHi);     /* brillito */
+  } else {                                            /* mujeres/niñas: melena con flequillo + mechones */
     px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
     px(x0,4,x1-x0,3,F.hair);                           /* cuerpo del pelo */
     px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo sobre la frente */
     px(x0-1,7,2,6,F.hair); px(x1-1,7,2,6,F.hair);      /* lados enmarcando (más) */
-    px(x0+2,4,3,1,F.hairHi); px(x0+1,5,2,1,F.hairHi); /* brillo (mechón de luz) */
-    px(x1-2,8,1,4,F.hairHi);                          /* reflejo lateral */
+    const btm2 = 19 + (F.longHair||0);
+    px(x0-1,8,1,btm2-9,F.hairHi);                      /* mechón de luz (izq) */
+    px(x1,9,1,btm2-11,F.hairHi);                       /* reflejo lateral (der) */
+    px(x0+3,10,1,btm2-12,F.shade);                     /* hebra oscura (textura) */
+    px(x0+2,4,3,1,F.hairHi); px(x0+1,5,2,1,F.hairHi); /* brillo arriba */
   }
   /* cejas (más gruesas en él, finitas en ellas) */
   const bw = F.beard?3:2;
