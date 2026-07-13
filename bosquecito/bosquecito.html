@@ -715,8 +715,8 @@ const CHAR_ANIM = {
      cuadro, así que apoya solito en el piso. */
   leila:    {sheet:'pa_leila',    fw:32, fh:32, frames:6, fps:5, disp:70},
   /* perros: idle = quietos (parados, colita), sólo caminan cuando pasean */
-  gaia:     {sheet:'pa_gaia_idle',   fw:64, fh:34, frames:5, fps:4, disp:23},
-  rubble:   {sheet:'pa_rubble_idle', fw:64, fh:34, frames:5, fps:4, disp:28}
+  gaia:     {sheet:'pa_gaia_idle',   fw:64, fh:34, frames:5, fps:4, disp:19},
+  rubble:   {sheet:'pa_rubble_idle', fw:64, fh:34, frames:5, fps:4, disp:27}
 };
 /* Ciclos de CAMINATA reales de los villagers (6 cuadros), recoloreados a la
    familia igual que sus idle. Se usan al correr (Saltá troncos) y al moverse.
@@ -727,8 +727,8 @@ const CHAR_WALK = {
   aurora:   {sheet:'pa_aurora_walk',   fw:48, fh:48, frames:6, fps:10, disp:66},
   leila:    {sheet:'pa_leila_walk',    fw:32, fh:32, frames:6, fps:8,  disp:70},
   /* perros: su hoja original de 10 cuadros ES la caminata */
-  gaia:     {sheet:'pa_gaia',          fw:64, fh:34, frames:10, fps:9, disp:23},
-  rubble:   {sheet:'pa_rubble',        fw:64, fh:34, frames:10, fps:9, disp:28}
+  gaia:     {sheet:'pa_gaia',          fw:64, fh:34, frames:10, fps:9, disp:19},
+  rubble:   {sheet:'pa_rubble',        fw:64, fh:34, frames:10, fps:9, disp:27}
 };
 /* Pose de "no me siento bien" (cuadro 1 del hurt = encogido; el 0 es el flash
    rojo, no lo usamos). Se muestra cuando está malito o recién mareado. */
@@ -4403,7 +4403,18 @@ function drawTitle(){
   c.fillStyle = '#53ac8b'; c.fillRect(0,gTop,TW,3);
   /* la familia paseando (loop continuo, hacia la derecha) */
   const feet = TH-7;
-  const cast = [['rubble',0,32],['andres',60,50],['angelica',128,48],['aurora',196,36],['gaia',248,28]];
+  /* [clave, fase, alto]. Escalas reales: Andrés más alto; Aurora niña; Leila
+     bebé gateando (chiquita); Rubble bóxer mediano; Gaia salchicha MINI = la más
+     pequeña de todas. Los perros son de 64×34 (largos), así que su 'alto' es
+     bastante menor que el de las personas para que no se vean gigantes. */
+  const cast = [
+    ['andres',    0, 50],
+    ['angelica', 60, 46],
+    ['aurora',  116, 34],
+    ['leila',   164, 21],
+    ['rubble',  212, 20],
+    ['gaia',    270, 15]
+  ];
   cast.forEach(([k,off,h])=>{
     const x = ((t*0.55 + off) % (TW+96)) - 48;
     const a = CHAR_WALK[k] || CHAR_ANIM[k];
