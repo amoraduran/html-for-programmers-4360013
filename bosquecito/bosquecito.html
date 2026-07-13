@@ -232,6 +232,9 @@
   #streakBadge.show, #familyBadge.show{display:inline-block}
   #familyBadge.done{color:#ffd0e4;border-color:#e2607a}
   #familyBadge .fbar{display:inline-block;letter-spacing:1px}
+  #familyBadge .fbRow{display:inline-flex;gap:3px;vertical-align:middle;margin:0 3px}
+  #familyBadge .fbFace{width:16px;height:16px;image-rendering:pixelated;border:2px solid var(--plum);border-radius:5px;background:#fbf1dd;opacity:.32;filter:grayscale(.7)}
+  #familyBadge .fbFace.on{opacity:1;filter:none;border-color:var(--gold)}
   #resOverlay{
     position:absolute;inset:0;background:rgba(22,38,29,.72);display:none;
     align-items:center;justify-content:center;z-index:29;cursor:pointer;
@@ -1352,10 +1355,15 @@ function buildSelect(){
   else sb.classList.remove('show');
   /* meta larga: unir a toda la familia (nivel 5+). se ve el progreso. */
   const fb = $('familyBadge'), bonded = familyBond(5), tot = ORDER.length;
+  /* caritas de la familia: brillan las que ya te quieren (nivel 5+) */
+  const famFaces = ORDER.map(k=>{
+    const sv = LS.get('bosquecito_'+k), on = sv && petLevel(sv) >= 5, u = facePortrait(k,'happy');
+    return u ? '<img class="fbFace'+(on?' on':'')+'" src="'+u+'" alt="">' : '';
+  }).join('');
   if(G && G.prestige){
-    fb.innerHTML = '💞 ¡Familia unida! · +20% 🪙 para siempre'; fb.className = 'show done';
+    fb.innerHTML = '💞 ¡Familia unida! <span class="fbRow">'+famFaces+'</span> +20% 🪙'; fb.className = 'show done';
   } else if(bonded > 0){
-    fb.innerHTML = '💞 Familia: <span class="fbar">'+'●'.repeat(bonded)+'○'.repeat(tot-bonded)+'</span> '+bonded+'/'+tot+' unida';
+    fb.innerHTML = '💞 <span class="fbRow">'+famFaces+'</span> '+bonded+'/'+tot+' unida';
     fb.className = 'show';
   } else fb.className = '';
   const g = $('charGrid');
