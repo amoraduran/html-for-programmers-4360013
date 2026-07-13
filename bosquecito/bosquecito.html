@@ -2761,7 +2761,7 @@ const FACE = {
   angelica:{kind:'woman', skin:'#c48d5b', shade:'#a5713f', hair:'#1e160e', hairHi:'#38281a', brow:'#170f09',
             longHair:2, earrings:'#e8c25c', chinMole:true, iris:'#3f2913', lips:'#b5566b'},
   aurora:  {kind:'girl',  skin:'#dda877', shade:'#c48c5c', hair:'#231a11', hairHi:'#42301e', brow:'#1c140c',
-            longHair:3, earrings:'#f0cf5a', cheekMole:true, chinMole:true, iris:'#4a3016', lips:'#c46a72'},
+            pigtails:true, earrings:'#f0cf5a', cheekMole:true, chinMole:true, iris:'#4a3016', lips:'#c46a72'},
   leila:   {kind:'baby',  skin:'#e4ac7d', shade:'#cf9868', hair:'#231a11', hairHi:'#42301e', brow:'#2a1d12',
             babyHair:true, chinMole:true, iris:'#3f2913', lips:'#c77a6a'},
   rubble:  {dog:'boxer',    coat:'#ece0cf', shade:'#d6c4a8', patch:'#7a5233', muzzle:'#d8c3a5', nose:'#2e2137'},
@@ -2807,19 +2807,32 @@ function drawFaceInto(g, who, mood, sc){
   g.globalAlpha = 1;
   px(x0+1, 17, 1, 2, F.shade); px(x1-2, 17, 1, 2, F.shade); /* mejillas */
   /* pelo arriba (copa redondeada, sin filo cuadrado) */
-  if(F.bun){                                          /* Andrés: man bun + sienes rapadas (undercut/fade) */
+  if(F.bun){                                          /* Andrés: man bun ALTO + sienes rapadas (undercut) */
     px(x0+2,4,(x1-x0)-4,1,F.hair);                    /* copa redondeada */
     px(x0,5,x1-x0,2,F.hair);                           /* pelo de arriba (recogido) */
     px(x0-1,6,2,4,F.hair); px(x1-1,6,2,4,F.hair);     /* sienes con pelo (arriba) */
     px(x0,10,1,4,F.beard); px(x1-1,10,1,4,F.beard);   /* fade: rapado cortito (sombra) bajando */
-    px(10,1,4,2,F.hair); px(11,0,2,1,F.hair);         /* el moño arriba */
+    px(10,0,4,4,F.hair); px(9,1,1,3,F.hair); px(14,1,1,3,F.hair); /* el moño ALTO y ancho (característico) */
     px(11,0,2,1,F.hairHi); px(x0+2,5,3,1,F.hairHi);   /* brillo del pelo/moño */
-  } else if(F.babyHair){                              /* Leila: pelusita suave (NO gorro) */
-    px(11,1,2,1,F.hair);                              /* ricito que se levanta */
-    px(10,2,4,1,F.hair);                              /* patchecito central */
-    px(9,3,2,1,F.hair); px(13,3,2,1,F.hair);          /* mechones ralos a los lados (deja ver la frente) */
-    px(8,4,1,1,F.hair); px(15,4,1,1,F.hair);          /* pelitos sueltos */
-    px(11,1,1,1,F.hairHi); px(10,2,2,1,F.hairHi);     /* brillito */
+  } else if(F.babyHair){                              /* Leila: pelusita + dos coletitas con clip */
+    px(8,0,2,3,F.hair); px(14,0,2,3,F.hair);          /* dos coletitas paraditas */
+    px(8,0,1,1,'#f2a7c3'); px(15,0,1,1,'#f2a7c3');    /* florecitas/clips */
+    px(10,2,4,1,F.hair); px(9,3,6,1,F.hair);          /* pelito central (deja ver la frente) */
+    px(9,4,1,1,F.hair); px(14,4,1,1,F.hair);          /* pelitos sueltos */
+    px(10,2,2,1,F.hairHi);                            /* brillito */
+  } else if(F.pigtails){                              /* Aurora: dos coletas (se ve más niña) */
+    px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
+    px(x0,4,x1-x0,3,F.hair);                           /* pelo arriba */
+    px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo */
+    px(x0+2,4,3,1,F.hairHi);                           /* brillo arriba */
+    /* coleta izquierda (sale del costado) */
+    px(x0-3,7,3,2,F.hair); px(x0-4,9,4,3,F.hair); px(x0-3,12,3,2,F.hair);
+    px(x0-3,9,1,2,F.hairHi);                           /* brillo coleta */
+    /* coleta derecha */
+    px(x1,7,3,2,F.hair); px(x1,9,4,3,F.hair); px(x1,12,3,2,F.hair);
+    px(x1+2,9,1,2,F.hairHi);
+    /* ligas de colita (rositas) */
+    px(x0-1,8,1,2,'#e0568a'); px(x1,8,1,2,'#e0568a');
   } else {                                            /* mujeres/niñas: melena con flequillo + mechones */
     px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
     px(x0,4,x1-x0,3,F.hair);                           /* cuerpo del pelo */
