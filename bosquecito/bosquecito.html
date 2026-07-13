@@ -70,6 +70,8 @@
   .charCard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--plum)}
   .charCard canvas{width:64px;height:64px;image-rendering:pixelated}
   .charCard .cardFace{width:58px;height:58px;image-rendering:pixelated;border-radius:12px;background:#fbf1dd;border:2px solid var(--plum)}
+  .charCard.bonded .cardFace{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 9px rgba(246,210,92,.55)}
+  .charCard.bonded .cname::after{content:' 💞';font-size:6px}
   .charCard .cname{font-size:7px;color:var(--gold)}
   .charCard .ctip{font-size:5px;color:var(--blush);line-height:1.6}
   .charCard .clvl{font-size:5px;color:var(--cream)}
@@ -1375,7 +1377,7 @@ function buildSelect(){
     const lv = saved ? petLevel(saved) : 0;
     const st = peekStatus(k, saved);
     const card = document.createElement('div');
-    card.className = 'charCard' + (st.urgent ? ' urge' : '');
+    card.className = 'charCard' + (st.urgent ? ' urge' : '') + (lv>=5 ? ' bonded' : '');
     card.style.background = 'linear-gradient(160deg, '+biomeColorFor(k, lv)+'40, var(--moss) 68%)';
     const face = facePortrait(k, savedMoodOf(saved));
     const avatar = face ? '<img class="cardFace" src="'+face+'" alt="">' : '<canvas width="34" height="34"></canvas>';
