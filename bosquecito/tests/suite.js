@@ -81,6 +81,14 @@ step("auto-eat fallback", ()=> {
   for(let i=0;i<300 && D().dropFood; i++) w.draw();
   if(D().dropFood) throw 0;
 });
+step("release away still feeds (tap-to-feed)", ()=> {
+  D().P.ham=50; D().G.inv.manzana=2; w.feed('manzana'); w.draw();
+  const f = D().dropFood;
+  pt('pointerdown', f.x, f.y);     // grab (no drag)
+  pt('pointerup', 8, 8);           // release far from the mouth
+  for(let i=0;i<300 && D().dropFood; i++) w.draw();
+  if(D().dropFood || Math.round(D().P.ham) < 55) throw new Error('not fed, ham '+D().P.ham);
+});
 step("refusal", ()=> { D().P.ham=96; D().G.inv.manzana=1; w.feed('manzana'); if(D().dropFood||D().G.inv.manzana!==1) throw 0; });
 step("scrub cleans poop", ()=> {
   D().P.poops.length = 0;
@@ -349,6 +357,6 @@ step("result replay restarts game", ()=> {
 });
 
 setTimeout(()=>{
-  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 50 TESTS PASSED");
+  console.log(errors.length ? "\nFAILED: "+errors.join(', ') : "\nALL 51 TESTS PASSED");
   process.exit(errors.length?1:0);
 }, 700);
