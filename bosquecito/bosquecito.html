@@ -701,6 +701,12 @@ const CHAR_HURT = {
   aurora:   {sheet:'pa_aurora_hurt',   fw:48, fh:48, frames:2, disp:66},
   leila:    {sheet:'pa_leila_hurt',    fw:32, fh:32, frames:2, disp:70}
 };
+/* Animaciones de estado de la bebé Leila (one-shot): toma la mamila al comer,
+   hace popó cuando le toca. Se disparan con leilaAct() y se muestran un ratito. */
+const LEILA_ACT = {
+  feed: {sheet:'pa_leila_feed', fw:32, fh:32, frames:6, fps:6, disp:70},
+  poop: {sheet:'pa_leila_poop', fw:32, fh:32, frames:6, fps:6, disp:70}
+};
 /* Ropa desbloqueable (cosmético · recolorea la prenda principal). Cada color
    se abre a cierto nivel de cariño. Se guarda en P.outfit. */
 const OUTFITS = {
@@ -1553,7 +1559,7 @@ function pick(k){
   dailyGift();
   squash = 0; hyper = 0; petting = false; sleepyHint = false; prevHearts = {};
   heldChar = false; charOX = 0; charOY = 0; charVX = 0; charVY = 0; airborne = false;
-  dizzy = 0; dropFood = null; bathBubbles = []; scrubPoop = null;
+  dizzy = 0; dropFood = null; bathBubbles = []; scrubPoop = null; _leilaAnim = null;
   go('play');
   refreshTop();
   if(!G.tut){
@@ -1856,6 +1862,7 @@ function applyFood(k){
     setTimeout(()=>{ speech(rc.say); burst(W/2, H-130, 5, rc.fx); if(rc.hyper) hyper = 90; }, 700);
   }
   floatText(W/2-10, charBox.y - 6, '+'+(f.ham||f.ale)+' '+(f.tipo==='confite'?'😊':'🍚'));
+  leilaAct('feed', 120);                 /* la bebé toma su mamila */
   squash = 8;
   addXP(f.tipo==='confite' ? 1 : 2);
   missionProg('comidas');
@@ -2140,7 +2147,7 @@ function travTick(dt){
 function spawnPoop(silent){
   if(P.poops.length>=3) return;
   P.poops.push({ x: 40+Math.random()*260, born: Date.now() });
-  if(!silent){ sfx('back'); hint('scrub', 'Frotá la popó con el dedo para limpiarla 🫧'); }
+  if(!silent){ sfx('back'); leilaAct('poop', 96); hint('scrub', 'Frotá la popó con el dedo para limpiarla 🫧'); }
 }
 function healthTick(dt){
   if(P.sleeping) return;
@@ -2250,6 +2257,8 @@ let propAnim = null;   /* cosa del escenario que reacciona al tocarla (tiembla/s
 let grabDX = 0, grabDY = 0, dizzy = 0, moveBuf = [], dirFlips = 0, lastMX = 0, movedDist = 0;
 let charBox = {x:0,y:0,w:0,h:0};
 let dropFood = null;           /* comidita arrastrable */
+let _leilaAnim = null;         /* {mode:'feed'|'poop', t} anim de estado de la bebé */
+function leilaAct(mode, t){ if(cur==='leila') _leilaAnim = {mode, t:t||96}; }
 let bathBubbles = [];          /* burbujas del baño (se pueden reventar) */
 let scrubPoop = null, scrubAcc = 0;
 let lastInteract = Date.now(), idlePulse = 0;
@@ -2609,8 +2618,11 @@ function draw(){
     ctx.translate(W/2 + gx, baseY);
     if(rock || wag) ctx.rotate(rock + wag);
     ctx.scale(sclX, sclY);
+    const leilaSpecial = (cur==='leila' && _leilaAnim && !P.sleeping && !heldChar) ? LEILA_ACT[_leilaAnim.mode] : null;
+    if(_leilaAnim){ if(--_leilaAnim.t <= 0) _leilaAnim = null; }
     if(anim){
       if(flinch){ drawAnimFrame(CHAR_HURT[cur], 0, 0, {frame:1}); }          /* encogido: malito/mareado */
+      else if(leilaSpecial){ drawAnimFrame(leilaSpecial, 0, 0, {}); }        /* bebé: mamila / popó */
       else if(walking && CHAR_WALK[cur]){ drawAnimFrame(CHAR_WALK[cur], 0, 0, {flip: walkDir<0}); }
       else { drawAnimFrame(anim, 0, 0, {flip: isDog && walking && walkDir<0}); }   /* perro camina = su anim + flip */
     }
