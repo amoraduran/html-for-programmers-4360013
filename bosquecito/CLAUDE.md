@@ -154,5 +154,20 @@ from visible (non-script) content.
 
 ## Deploy
 
-User drags `bosquecito.html` into Vercel manually. Saves are per-device
-(localStorage), so never rename the storage keys without a migration.
+Two modes:
+- **Single file (default):** drag `bosquecito.html` into Vercel. Fully playable,
+  and installable to the home screen (inline manifest + apple-touch-icon → iOS
+  "Add to Home Screen" / Android shortcut, opens standalone). This stays the
+  "one file" build — the game logic + all assets live in `bosquecito.html`.
+- **Folder (optional extras):** deploy the whole `bosquecito/` folder to get
+  ① robust offline + Android install via the `sw.js` service worker (registered
+  gracefully; absent → game still runs), and ② opt-in cloud save via the
+  `api/save.js` serverless function + `@vercel/kv` (see `package.json`). Cloud is
+  off unless `window.BOSQUECITO_SYNC_URL` is set. Full persistence/hosting model
+  is in DESIGN.md §11.
+
+Saves are per-device `localStorage` (`bosquecito_*`), behind the `LS` wrapper —
+never rename the storage keys without a migration. Progress while closed is
+timestamp-based (`P.ts` + `OFFLINE_FACTOR`), so no backend is needed for the pet
+to "keep living." The `exportSave`/`parseSave`/`applySaveObj` trio (the Respaldo
+panel) backs up / restores the whole save as a `BQ1-` code.

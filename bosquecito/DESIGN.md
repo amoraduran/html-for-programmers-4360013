@@ -182,6 +182,59 @@ Ranked by impact on *"why would someone play and come back?"*
 **P3 — collection meta**
 - [ ] Explicit **"bond the whole family"** tracker + prestige reward.
 
+## 11. Persistence, hosting & offline (technical)
+
+How a player keeps their progress — and what changes when the game is hosted
+(Vercel / a domain) instead of opened as a local file.
+
+**Offline progression works with no server.** Each save stamps `P.ts =
+Date.now()`. On reopen the game computes elapsed time and applies decay /
+sleep-regen for the gap (gentled by `OFFLINE_FACTOR = 0.35`, floored so stats
+never hit zero — the "el bosque lo arropó" rescue covers the rest). So the pet
+"lived" while away — simulated on next open, exactly like Tamagotchi/Neko
+Atsume. No background process, no backend required.
+
+**Where the save lives.** `localStorage`, per **browser, per device** (keys
+`bosquecito_*`, behind the `LS` wrapper with a memory fallback). Survives closing
+the tab/app and restarting the phone. **Lost** on: clearing browser data,
+switching device/browser, or iOS Safari's ~7-day eviction of unused sites. No
+cross-device sync by itself. For a family where each person plays on their own
+phone, that's fine — instant play, no login.
+
+**Three layers, cheapest → most robust (all implemented / scaffolded):**
+
+1. **PWA (installable + offline).** Inline web manifest + hand-drawn app icon +
+   apple-touch-icon in the `<head>` make the single HTML installable ("Add to
+   Home Screen" on iOS, Android shortcut) and it opens standalone. Optional
+   sibling **`sw.js`** (cache-first service worker, registered gracefully) gives
+   bulletproof offline + Android install; if it isn't deployed alongside, the
+   game still runs. *This is also the only path to push notifications later
+   (the real "come back tomorrow" hook) — limited on iOS, fine on Android.*
+
+2. **Backup code (no backend).** The "⚙️ Respaldo" panel packs every
+   `bosquecito_*` key into a copyable `BQ1-…` code (`exportSave`/`parseSave`/
+   `applySaveObj`). Copy it to back up before clearing cache, or paste it on a
+   new phone to restore. Keeps the game a single file.
+
+3. **Cloud sync via a code (opt-in backend).** Same `BQ1-` blob, stored under a
+   short `BOSQUE-XXXXX` code. Off by default (`window.BOSQUECITO_SYNC_URL`
+   empty) so the single-file build is unaffected. To turn on:
+   - Deploy the **`bosquecito/` folder** to Vercel (not just the HTML).
+   - Vercel → Storage → create a **KV** database (Upstash Redis, free tier); it
+     injects `KV_REST_API_URL` / `KV_REST_API_TOKEN`. `@vercel/kv` is in
+     `package.json`; the function is **`api/save.js`** (GET `?code=` / POST
+     `{code,data}`).
+   - Set `window.BOSQUECITO_SYNC_URL = '/api/save'` in the HTML. The "☁️ Nube"
+     section then appears in Respaldo: save under your code, or pull with another
+     device's code. No accounts, no personal data.
+
+**Recommendation & platform.** Stay on the **web** — instant, no install,
+shareable by link, cross-platform. Do PWA + backup-code now (covers ~90% of the
+worry, no server); add cloud sync only if you truly want the same pet on phone
+*and* tablet. A server-authoritative model is *not* needed for offline
+progression; it would only matter for anti-cheat (clock tampering) or push
+notifications. Full accounts (email/Google) are overkill for a family game.
+
 ## 10. Design guardrails (do not violate)
 - Cozy, guilt-free, **no death / no punishment** (rescue instead).
 - **Low-pressure but goal-ful:** always a gentle "what next," never a fail state.
