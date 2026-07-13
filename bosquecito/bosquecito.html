@@ -2755,13 +2755,13 @@ const SAYINGS = {
    con sus marcas (Rubble boxer crema con mancha en un ojo, Gaia salchicha
    chocolate). Facilísimo de afinar cuando lleguen las fotos. */
 const FACE = {
-  andres:  {kind:'man',   skin:'#eac196', shade:'#d3a074', hair:'#3b2a1e', brow:'#2e2016',
+  andres:  {kind:'man',   skin:'#eac196', shade:'#d3a074', hair:'#3b2a1e', hairHi:'#59422e', brow:'#2e2016',
             bun:true, undercut:true, beard:'#3b2a1e', lips:'#a9614e'},
-  angelica:{kind:'woman', skin:'#cf9b6e', shade:'#b6835a', hair:'#241811', brow:'#1c130d',
+  angelica:{kind:'woman', skin:'#cf9b6e', shade:'#b6835a', hair:'#241811', hairHi:'#3c2a1d', brow:'#1c130d',
             longHair:2, chinMole:true, lips:'#b5566b'},
-  aurora:  {kind:'girl',  skin:'#e7b892', shade:'#d09a72', hair:'#2a1c12', brow:'#22160e',
+  aurora:  {kind:'girl',  skin:'#e7b892', shade:'#d09a72', hair:'#2a1c12', hairHi:'#48321f', brow:'#22160e',
             longHair:3, earrings:'#f6d25c', cheekMole:true, chinMole:true, lips:'#c46a72'},
-  leila:   {kind:'baby',  skin:'#eec19a', shade:'#dba579', hair:'#2a1c12', brow:'#3a281a',
+  leila:   {kind:'baby',  skin:'#eec19a', shade:'#dba579', hair:'#2a1c12', hairHi:'#48321f', brow:'#3a281a',
             babyHair:true, chinMole:true, lips:'#c77a6a'},
   rubble:  {dog:'boxer',    coat:'#ece0cf', shade:'#d6c4a8', patch:'#7a5233', muzzle:'#d8c3a5', nose:'#2e2137'},
   gaia:    {dog:'weiner',   coat:'#5a3a24', shade:'#482d1b', ear:'#3f281a', muzzle:'#6e4a30', grey:'#9a8a7a', nose:'#2e2137'}
@@ -2791,13 +2791,20 @@ function drawFaceInto(g, who, mood, sc){
     px(x0-2, 6, 3, btm-6, F.hair); px(x1-1, 6, 3, btm-6, F.hair);
     px(x0-1, btm-1, x1-x0+2, 1, F.hair);
   }
-  /* piel: óvalo con mejillas redondas y mentón afinado (menos cuadrado) */
-  const shape = baby
+  /* piel: óvalo con mejillas redondas y mentón afinado (menos cuadrado).
+     bebé y niña más redonditas (caritas jóvenes) */
+  const round = baby || F.kind==='girl';
+  const shape = round
     ? [[5,4],[6,3],[7,1],[8,1],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,0],[17,1],[18,1],[19,2],[20,3]]
     : [[5,4],[6,2],[7,1],[8,1],[9,0],[10,0],[11,0],[12,0],[13,0],[14,0],[15,0],[16,1],[17,1],[18,2],[19,3],[20,4],[21,5]];
   shape.forEach(([y,ins])=> px(x0+ins, y, (x1-x0)-2*ins, 1, F.skin));
   px(x0-1, 12, 1, 3, F.skin); px(x1, 12, 1, 3, F.skin);   /* orejitas */
-  px(x0+1, 17, 1, 2, F.shade); px(x1-2, 17, 1, 2, F.shade); /* volumen en mejillas */
+  /* volumen: sombra suave en un lado y bajo el mentón (redondea) */
+  g.globalAlpha = .32;
+  px(x1-1, 9, 1, 8, F.shade);
+  px(x0+2, 19, x1-x0-4, 1, F.shade);
+  g.globalAlpha = 1;
+  px(x0+1, 17, 1, 2, F.shade); px(x1-2, 17, 1, 2, F.shade); /* mejillas */
   /* pelo arriba (copa redondeada, sin filo cuadrado) */
   if(F.bun){                                          /* Andrés: moño + sienes con pelo cortito (fade) */
     px(x0-1,6,2,8,F.hair); px(x1-1,6,2,8,F.hair);     /* pelo bajando por las sienes (más) */
@@ -2805,13 +2812,17 @@ function drawFaceInto(g, who, mood, sc){
     px(x0,5,x1-x0,2,F.hair);                           /* copete */
     px(10,1,4,2,F.hair); px(11,0,2,1,F.hair);         /* el moño arriba */
     px(x0-1,14,1,2,F.beard); px(x1,14,1,2,F.beard);   /* patillita hacia la barba */
+    px(x0+2,5,3,1,F.hairHi); px(11,1,2,1,F.hairHi);   /* brillo del pelo */
   } else if(F.babyHair){
     px(9,2,6,1,F.hair); px(8,3,8,2,F.hair);           /* mechoncito redondeado */
+    px(9,3,3,1,F.hairHi);                             /* brillito */
   } else {                                            /* mujeres/niñas: melena con flequillo */
     px(x0+2,2,(x1-x0)-4,1,F.hair); px(x0+1,3,(x1-x0)-2,1,F.hair); /* copa redondeada */
     px(x0,4,x1-x0,3,F.hair);                           /* cuerpo del pelo */
     px(x0+1,6,x1-x0-2,1,F.hair);                       /* flequillo sobre la frente */
     px(x0-1,7,2,6,F.hair); px(x1-1,7,2,6,F.hair);      /* lados enmarcando (más) */
+    px(x0+2,4,3,1,F.hairHi); px(x0+1,5,2,1,F.hairHi); /* brillo (mechón de luz) */
+    px(x1-2,8,1,4,F.hairHi);                          /* reflejo lateral */
   }
   /* cejas (más gruesas en él, finitas en ellas) */
   const bw = F.beard?3:2;
