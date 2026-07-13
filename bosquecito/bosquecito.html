@@ -966,10 +966,13 @@ function drawRoom(){
   for(let x=26;x<W;x+=42){ ctx.beginPath(); ctx.moveTo(x,rail+6); ctx.lineTo(x,floorY-5); ctx.stroke(); }
   ctx.fillStyle = night ? '#5a4d63' : '#efd9c4'; ctx.fillRect(0,rail-3,W,4);      /* riel de silla */
   ctx.fillStyle = night ? '#6a5a72' : '#fffaf3'; ctx.fillRect(0,rail-3,W,1);
-  /* ---- decoración de pared: lunares pastel (papel tapiz de cuarto, NO cielo:
-     el cielo sólo se ve por la ventana) ---- */
-  ctx.fillStyle = night ? 'rgba(255,255,255,.05)' : 'rgba(226,150,170,.22)';
-  [[120,20],[150,32],[178,22],[150,54],[112,46],[188,44]].forEach(([dx,dy])=>{ ctx.beginPath(); ctx.arc(dx,dy,2.5,0,7); ctx.fill(); });
+  /* ---- papel tapiz: lunares pastel en TODA la pared alta (el cielo sólo se ve
+     por la ventana; el marco/estante/banderines que se dibujan después tapan los
+     lunares que quedan detrás) ---- */
+  ctx.fillStyle = night ? 'rgba(255,255,255,.045)' : 'rgba(226,150,170,.20)';
+  for(let ry=0, y=20; y<rail-6; y+=24, ry++){
+    for(let x=(ry%2?24:12); x<W; x+=24){ ctx.beginPath(); ctx.arc(x,y,2.3,0,7); ctx.fill(); }
+  }
   /* ---- banderines (bunting) ---- */
   const bunt = ['#f2a7b6','#f6d25c','#8fd0c7','#b7a3e0'];
   for(let i=0;i<11;i++){ const t=i/10, x=t*W, y=9+Math.sin(t*Math.PI)*9;
