@@ -168,13 +168,15 @@ Ranked by impact on *"why would someone play and come back?"*
       Still open: more hat variety / seasonal cosmetics.
 - [ ] **Meaningful unlock gating**: reach-for-it games/food/interactions by level.
 - [x] **Personalized face portraits + expressions**: per-character pixel faces
-      (`FACE` + `drawFaceInto`/`facePortrait`) built from the family's real features
-      (Andrés man bun + candado beard + shaved sides; Angélica tan skin + chin mole;
-      Aurora long hair + earrings + cheek/chin moles; Leila baby; Rubble cream boxer
-      with an eye patch; Gaia chocolate dachshund with long ears), with an expression
-      set (happy/hungry/tired/dirty/sad/sick) mapped from mood. Shown in the tap-to-talk
-      speech bubble. *(first pass from text descriptions — refine to true likeness when
-      the owner sends photos; can also surface on the select cards / goal card)*
+      (`FACE` + `drawFaceInto`/`facePortrait`) grounded in the family's real photos
+      (warm skin tones, near-black hair, brown eyes; Andrés tall man bun + undercut +
+      candado; Angélica olive skin + gold hoops + chin mole; Aurora two pigtails +
+      earrings + cheek/chin moles; Leila baby with clipped tufts; Rubble cream boxer
+      with an eye patch; Gaia lean chocolate dachshund). Expression set
+      (happy/hungry/tired/dirty/sad/sick) maps from mood. **Surfaced in three places:**
+      the tap-to-talk speech bubble, the character-select cards (each member's current
+      mood), and a persistent avatar in the play-screen top bar (always on, tracks
+      mood). *(done — keep tuning likeness per new reference)*
 - [ ] **Notifications** (if ever packaged as an app): the real appointment hook.
 
 **P3 — collection meta**
