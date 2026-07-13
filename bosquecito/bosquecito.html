@@ -701,7 +701,7 @@ const SCENE = {
   andres:  [['lamp', 306, 20, 74], ['bush', 40, 22, 22], ['rock', 66, 19, 16]],
   angelica:[['bench', 296, 20, 40], ['planter', 44, 18, 26]],
   aurora:  [['planter', 300, 18, 26], ['bush', 44, 20, 20], ['rock', 322, 18, 15]],
-  leila:   [['rug', 150, 12, 16], ['crib', 300, 18, 54]]
+  leila:   [['crib', 300, 18, 54]]
 };
 /* La bebé Leila vive adentro (su cuartito), el resto en el jardín. */
 const SCENE_TYPE = { leila:'indoor' };
@@ -883,27 +883,87 @@ function drawSceneBG(sky){
   return true;
 }
 /* Cuartito de bebé: pared + papel tapiz + piso de madera + ventana. */
+/* Cuartito de Leila: un nursery acogedor (pared con zócalo alto + riel, ventana
+   con vista, banderines, estante con juguetes, móvil, alfombra y luz cálida). */
 function drawRoom(){
-  const floorY = H-86;
-  const night = skyColors().night;
-  ctx.fillStyle = night ? '#5c4a63' : '#e7d1e2';   /* pared (de noche más tenue) */
-  ctx.fillRect(0,0,W,floorY);
-  ctx.fillStyle = night ? 'rgba(255,220,170,.10)' : 'rgba(196,150,190,.30)';  /* lunares del papel tapiz */
-  for(let y=8;y<floorY-6;y+=18) for(let x=6;x<W;x+=22) ctx.fillRect(x + ((y/18|0)%2?11:0), y, 3, 3);
-  drawSprBottom('window', 76, floorY-16, 34);      /* ventana en la pared */
-  if(night){ ctx.fillStyle='rgba(18,22,48,.6)'; ctx.fillRect(66, floorY-46, 21, 27); }  /* vidrios oscuros de noche */
-  ctx.fillStyle = night ? '#c9b7d0' : '#c9b7d0'; ctx.fillRect(0,floorY-6,W,2);   /* borde superior del zócalo */
-  ctx.fillStyle = night ? '#e8dccb' : '#fff6ec'; ctx.fillRect(0,floorY-4,W,4);   /* zócalo */
-  ctx.fillStyle = night ? '#8f6f4c' : '#c79a68';   /* piso de madera */
-  ctx.fillRect(0,floorY,W,H-floorY);
-  ctx.strokeStyle = 'rgba(120,80,40,.30)'; ctx.lineWidth = 1;
-  for(let i=1;i<6;i++){ ctx.beginPath(); ctx.moveTo(0,floorY+i*14); ctx.lineTo(W,floorY+i*14); ctx.stroke(); }
+  const floorY = H-86, rail = 108, night = skyColors().night;
+  /* ---- pared: banda cálida arriba, wainscot (zócalo alto) abajo ---- */
+  ctx.fillStyle = night ? '#463c50' : '#f6e6d6';
+  ctx.fillRect(0,0,W,rail);
+  ctx.fillStyle = night ? '#38463f' : '#d9ece2';
+  ctx.fillRect(0,rail,W,floorY-rail);
+  ctx.strokeStyle = night ? 'rgba(255,255,255,.05)' : 'rgba(150,175,160,.4)'; ctx.lineWidth = 1;
+  for(let x=26;x<W;x+=42){ ctx.beginPath(); ctx.moveTo(x,rail+6); ctx.lineTo(x,floorY-5); ctx.stroke(); }
+  ctx.fillStyle = night ? '#5a4d63' : '#efd9c4'; ctx.fillRect(0,rail-3,W,4);      /* riel de silla */
+  ctx.fillStyle = night ? '#6a5a72' : '#fffaf3'; ctx.fillRect(0,rail-3,W,1);
+  /* ---- calcomanías en la pared alta (nubes de día · luna+estrellas de noche) ---- */
   if(night){
-    /* lucecita nocturna cálida junto a la cuna (glow suave, sin gradients) */
+    ctx.fillStyle = '#fef1c8';
+    [[42,24],[122,18],[196,30],[150,46],[88,40]].forEach(([sx,sy])=>{ ctx.fillRect(sx,sy,2,2); ctx.fillRect(sx-1,sy+1,1,1); ctx.fillRect(sx+2,sy+1,1,1); });
+    ctx.fillStyle = '#f6e9bf'; ctx.beginPath(); ctx.arc(232,32,9,0,7); ctx.fill();
+    ctx.fillStyle = '#463c50'; ctx.beginPath(); ctx.arc(228,29,8,0,7); ctx.fill();   /* media luna */
+  } else {
+    const cloud=(cx,cy,s)=>{ ctx.fillStyle='rgba(255,255,255,.65)'; ctx.beginPath(); ctx.arc(cx,cy,4*s,0,7); ctx.arc(cx+5*s,cy-1,5*s,0,7); ctx.arc(cx+11*s,cy,4*s,0,7); ctx.fill(); ctx.fillRect(cx-2,cy,14*s,3*s); };
+    cloud(150,40,1); cloud(232,26,.8);
+  }
+  /* ---- banderines (bunting) ---- */
+  const bunt = ['#f2a7b6','#f6d25c','#8fd0c7','#b7a3e0'];
+  for(let i=0;i<11;i++){ const t=i/10, x=t*W, y=9+Math.sin(t*Math.PI)*9;
+    ctx.fillStyle = bunt[i%4]; ctx.beginPath(); ctx.moveTo(x-5,y-1); ctx.lineTo(x+5,y-1); ctx.lineTo(x,y+8); ctx.closePath(); ctx.fill(); }
+  /* ---- ventana con vista + cortinas ---- */
+  const wx=44, wy=34, ww=58, wh=60;
+  if(!night){
+    ctx.fillStyle='#a9dbf0'; ctx.fillRect(wx,wy,ww,wh*0.55);
+    ctx.fillStyle='#bfe6cf'; ctx.fillRect(wx,wy+wh*0.55,ww,wh*0.45);
+    ctx.fillStyle='#f6d25c'; ctx.beginPath(); ctx.arc(wx+13,wy+13,6,0,7); ctx.fill();      /* sol */
+    ctx.fillStyle='rgba(255,255,255,.8)'; ctx.beginPath(); ctx.arc(wx+40,wy+18,5,0,7); ctx.arc(wx+46,wy+18,6,0,7); ctx.fill(); ctx.fillRect(wx+38,wy+18,14,4);
+    ctx.fillStyle='#8fc07a'; ctx.fillRect(wx,wy+wh-6,ww,6);                                 /* pastito lejano */
+  } else {
+    ctx.fillStyle='#20263f'; ctx.fillRect(wx,wy,ww,wh);
+    ctx.fillStyle='#fef1c8'; [[wx+12,wy+12],[wx+38,wy+22],[wx+24,wy+34],[wx+46,wy+42]].forEach(([sx,sy])=>ctx.fillRect(sx,sy,2,2));
+    ctx.fillStyle='#f6e9bf'; ctx.beginPath(); ctx.arc(wx+44,wy+14,6,0,7); ctx.fill();       /* luna */
+  }
+  ctx.fillStyle = night?'#d8cfe0':'#fffaf3';                                                /* marco */
+  ctx.fillRect(wx-3,wy-3,ww+6,3); ctx.fillRect(wx-3,wy+wh,ww+6,4);
+  ctx.fillRect(wx-3,wy,3,wh); ctx.fillRect(wx+ww,wy,3,wh);
+  ctx.fillRect(wx+ww/2-1,wy,2,wh); ctx.fillRect(wx,wy+wh/2-1,ww,2);                          /* cruz */
+  ctx.fillStyle = night?'#7a5f86':'#f2b8c8';                                                /* cortinas */
+  ctx.fillRect(wx-9,wy-6,8,wh+9); ctx.fillRect(wx+ww+1,wy-6,8,wh+9);
+  ctx.fillStyle='rgba(255,255,255,.22)'; ctx.fillRect(wx-7,wy-6,2,wh+9); ctx.fillRect(wx+ww+3,wy-6,2,wh+9);
+  ctx.fillStyle = night?'#9a8aa2':'#c98a76'; ctx.fillRect(wx-11,wy-8,ww+22,3);              /* riel */
+  /* ---- estante con juguetes ---- */
+  const sx=214, sy=66;
+  ctx.fillStyle = night?'#5a4433':'#8a6543'; ctx.fillRect(sx,sy+4,64,2);
+  ctx.fillStyle = night?'#7a5f4a':'#b98a5e'; ctx.fillRect(sx,sy,64,4);
+  ['#7ec6a0','#f6d25c','#f2a7b6','#8fb8e6'].forEach((c,i)=>{ ctx.fillStyle=c; const w=14-i*3; ctx.fillRect(sx+8+(14-w)/2-2, sy-4-i*4, w, 3); });  /* torre de aros */
+  ctx.fillStyle='#c98a5a'; ctx.fillRect(sx+11,sy-19,2,17);
+  ctx.fillStyle='#f6d25c'; ctx.fillRect(sx+31,sy-9,9,9); ctx.fillStyle='#e0568a'; ctx.fillRect(sx+33,sy-7,5,5);   /* bloque */
+  ctx.fillStyle='#f2a7b6'; ctx.beginPath(); ctx.arc(sx+54,sy-5,5,0,7); ctx.fill(); ctx.fillStyle='#fff'; ctx.fillRect(sx+51,sy-7,2,2);  /* pelotita */
+  /* ---- móvil colgante sobre la cuna ---- */
+  const mx=300, my=9;
+  ctx.strokeStyle=night?'#8a7a90':'#b0a0b8'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(mx,0); ctx.lineTo(mx,my); ctx.stroke();
+  ctx.fillStyle=night?'#8a7a90':'#c9a86a'; ctx.fillRect(mx-15,my,30,2);
+  [[mx-13,'#f6d25c'],[mx,'#8fd0c7'],[mx+13,'#f2a7b6']].forEach(([dx,c])=>{ ctx.strokeStyle=night?'#8a7a90':'#b0a0b8'; ctx.beginPath(); ctx.moveTo(dx,my+2); ctx.lineTo(dx,my+7); ctx.stroke(); ctx.fillStyle=c; ctx.fillRect(dx-3,my+7,6,6); });
+  /* ---- zócalo (baseboard) ---- */
+  ctx.fillStyle = night?'#c9b7d0':'#fffaf3'; ctx.fillRect(0,floorY-5,W,5);
+  ctx.fillStyle = night?'#a898b0':'#e6d3c0'; ctx.fillRect(0,floorY-5,W,1);
+  /* ---- piso de madera ---- */
+  ctx.fillStyle = night?'#785d44':'#c79a68'; ctx.fillRect(0,floorY,W,H-floorY);
+  ctx.fillStyle = night?'#684f38':'#bb8d5c';
+  for(let i=1;i<6;i++) ctx.fillRect(0,floorY+i*14,W,1);
+  ctx.strokeStyle='rgba(120,80,40,.2)';
+  for(let x=30;x<W;x+=60){ ctx.beginPath(); ctx.moveTo(x,floorY+2); ctx.lineTo(x,floorY+12); ctx.stroke(); }
+  /* ---- alfombra redonda bajo el área de juego ---- */
+  ctx.fillStyle = night?'rgba(150,120,160,.38)':'rgba(246,210,140,.55)';
+  ctx.beginPath(); ctx.ellipse(W/2, floorY+42, 96, 20, 0, 0, 7); ctx.fill();
+  ctx.strokeStyle = night?'rgba(200,180,210,.4)':'rgba(226,150,120,.5)'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.ellipse(W/2, floorY+42, 80, 16, 0, 0, 7); ctx.stroke();
+  /* ---- luz nocturna cálida junto a la cuna ---- */
+  if(night){
     const gx=286, gy=H-52;
-    for(let r=26;r>0;r-=6){ ctx.globalAlpha = 0.05; ctx.fillStyle='#ffdf8e'; ctx.beginPath(); ctx.arc(gx,gy,r,0,7); ctx.fill(); }
-    ctx.globalAlpha=1;
-    ctx.fillStyle='#ffdf8e'; ctx.fillRect(gx-2,gy-2,4,5); ctx.fillStyle='#fff6ec'; ctx.fillRect(gx-1,gy-1,2,2);
+    for(let r=28;r>0;r-=6){ ctx.globalAlpha=0.05; ctx.fillStyle='#ffdf8e'; ctx.beginPath(); ctx.arc(gx,gy,r,0,7); ctx.fill(); }
+    ctx.globalAlpha=1; ctx.fillStyle='#ffdf8e'; ctx.fillRect(gx-2,gy-2,4,5); ctx.fillStyle='#fff6ec'; ctx.fillRect(gx-1,gy-1,2,2);
   }
 }
 /* Dibuja el cuadro actual de una animación, centrado horizontalmente en cx con
