@@ -123,6 +123,8 @@
     background:var(--cream);color:var(--plum);border:3px solid var(--plum);border-radius:10px;
     font-size:6px;line-height:1.7;padding:7px 9px;max-width:80%;display:none;z-index:3;
   }
+  #bubble::before{content:'';position:absolute;bottom:-11px;left:50%;margin-left:-8px;border:8px solid transparent;border-top-color:var(--plum)}
+  #bubble::after{content:'';position:absolute;bottom:-5px;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--cream)}
   .bubbleRow{display:flex;align-items:center;gap:7px;text-align:left}
   .facePic{
     width:34px;height:34px;flex-shrink:0;image-rendering:pixelated;
